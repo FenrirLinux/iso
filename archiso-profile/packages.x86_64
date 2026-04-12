@@ -24,6 +24,8 @@ seatd-openrc
 grub
 efibootmgr
 os-prober
+syslinux
+mtools
 
 # --- Networking ---
 networkmanager
