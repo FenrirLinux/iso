@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="500" viewBox="0 0 680 420" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>FenrirOS Welcome Screen</title>
+<desc>FenrirOS installer welcome screen</desc>
+<style>
+  .bg { fill: #0d0d0d; }
+  .sidebar { fill: #0a0a0a; }
+  .accent-line { stroke: #c0392b; stroke-width: 1; opacity: 0.4; }
+  .ring { fill: none; stroke: #c0392b; stroke-width: 0.5; opacity: 0.12; }
+  .wolf-fill { fill: #1a1010; stroke: #c0392b; stroke-width: 1; stroke-linejoin: round; }
+  .wolf-dim { fill: #2a1a1a; stroke: #8b1a1a; stroke-width: 0.8; }
+  .eye { fill: #c0392b; }
+  .chain { fill: none; stroke: #3a3028; stroke-width: 1.2; stroke-linecap: round; }
+  .chain-break { fill: none; stroke: #c0392b; stroke-width: 1; stroke-linecap: round; opacity: 0.6; }
+  .divider { stroke: #2a2a2a; stroke-width: 0.5; }
+  .step-active { fill: #c0392b; }
+  .step-inactive { fill: #2a2020; stroke: #3a3028; stroke-width: 0.5; }
+</style>
+
+<rect width="680" height="420" class="bg"/>
+<rect width="180" height="420" class="sidebar"/>
+<line x1="180" y1="0" x2="180" y2="420" class="accent-line"/>
+<circle cx="90" cy="160" r="100" class="ring"/>
+<circle cx="90" cy="160" r="75" class="ring"/>
+<polygon points="90,75 55,88 38,112 32,145 36,178 50,202 64,218 60,237 50,252 82,243 90,232 98,243 130,252 120,237 116,218 130,202 144,178 148,145 142,112 125,88" class="wolf-fill"/>
+<polygon points="38,112 28,88 15,75 25,97 30,118" class="wolf-dim"/>
+<polygon points="142,112 152,88 165,75 155,97 150,118" class="wolf-dim"/>
+<ellipse cx="68" cy="148" rx="10" ry="11" class="eye"/>
+<ellipse cx="112" cy="148" rx="10" ry="11" class="eye"/>
+<ellipse cx="68" cy="148" rx="4" ry="5" fill="#0d0d0d"/>
+<ellipse cx="112" cy="148" rx="4" ry="5" fill="#0d0d0d"/>
+<circle cx="70" cy="146" r="2" fill="#e8e0d0" style="opacity:0.5"/>
+<circle cx="114" cy="146" r="2" fill="#e8e0d0" style="opacity:0.5"/>
+<path d="M76,168 Q90,176 104,168" fill="none" stroke="#c0392b" stroke-width="0.8"/>
+<path d="M60,237 Q52,250 45,260" class="chain"/>
+<path d="M48,249 Q45,253 48,257 Q51,261 48,265" class="chain"/>
+<path d="M45,260 L40,272" class="chain-break"/>
+<path d="M48,260 L54,270" class="chain-break"/>
+<path d="M120,237 Q128,250 135,260" class="chain"/>
+<path d="M132,249 Q135,253 132,257 Q129,261 132,265" class="chain"/>
+<path d="M135,260 L140,272" class="chain-break"/>
+<path d="M132,260 L126,270" class="chain-break"/>
+<text x="90" y="310" text-anchor="middle" style="font-family:'Bebas Neue','Impact',sans-serif;fill:#e8e0d0;font-size:26px;letter-spacing:5px;">FENRIROS</text>
+<text x="90" y="328" text-anchor="middle" style="font-family:'Rajdhani','Arial',sans-serif;fill:#c0392b;font-size:9px;letter-spacing:4px;">UNCHAINED</text>
+<circle cx="90" cy="358" r="4" class="step-active"/>
+<circle cx="110" cy="358" r="4" class="step-inactive"/>
+<circle cx="130" cy="358" r="4" class="step-inactive"/>
+<circle cx="150" cy="358" r="4" class="step-inactive"/>
+<circle cx="170" cy="358" r="4" class="step-inactive"/>
+<text x="90" y="395" text-anchor="middle" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:11px;letter-spacing:2px;">Welcome</text>
+<text x="220" y="60" style="font-family:'Bebas Neue','Impact',sans-serif;fill:#e8e0d0;font-size:42px;letter-spacing:8px;">Welcome to</text>
+<text x="220" y="100" style="font-family:'Bebas Neue','Impact',sans-serif;fill:#e8e0d0;font-size:42px;letter-spacing:8px;">FenrirOS</text>
+<text x="220" y="124" style="font-family:'Rajdhani','Arial',sans-serif;fill:#c0392b;font-size:13px;letter-spacing:6px;">GAMING LINUX · UNCHAINED FROM SYSTEMD</text>
+<line x1="220" y1="138" x2="640" y2="138" class="divider"/>
+<text x="220" y="162" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:13px;">This installer will guide you through setting up FenrirOS on your system.</text>
+<text x="220" y="180" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:13px;">FenrirOS uses OpenRC with elogind — a fast, transparent init system</text>
+<text x="220" y="198" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:13px;">that gives you full gaming performance without systemd dependency.</text>
+<line x1="220" y1="215" x2="640" y2="215" class="divider"/>
+<rect x="220" y="228" width="190" height="60" rx="2" fill="#111" stroke="#2a2a2a" stroke-width="0.5"/>
+<text x="232" y="247" style="font-family:'Rajdhani','Arial',sans-serif;fill:#e8e0d0;font-size:12px;font-weight:bold;">Init System</text>
+<text x="232" y="263" style="font-family:'JetBrains Mono','Courier New',monospace;fill:#c0392b;font-size:11px;">OpenRC + elogind</text>
+<text x="232" y="278" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:10px;">systemd-free session management</text>
+<rect x="425" y="228" width="190" height="60" rx="2" fill="#111" stroke="#2a2a2a" stroke-width="0.5"/>
+<text x="437" y="247" style="font-family:'Rajdhani','Arial',sans-serif;fill:#e8e0d0;font-size:12px;font-weight:bold;">Kernel</text>
+<text x="437" y="263" style="font-family:'JetBrains Mono','Courier New',monospace;fill:#c0392b;font-size:11px;">linux-cachyos + LAVD</text>
+<text x="437" y="278" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:10px;">CachyOS performance patches</text>
+<rect x="220" y="300" width="190" height="60" rx="2" fill="#111" stroke="#2a2a2a" stroke-width="0.5"/>
+<text x="232" y="319" style="font-family:'Rajdhani','Arial',sans-serif;fill:#e8e0d0;font-size:12px;font-weight:bold;">Gaming Stack</text>
+<text x="232" y="335" style="font-family:'JetBrains Mono','Courier New',monospace;fill:#c0392b;font-size:11px;">Steam · Proton · Lutris</text>
+<text x="232" y="350" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:10px;">Full stack, ready out of the box</text>
+<rect x="425" y="300" width="190" height="60" rx="2" fill="#111" stroke="#2a2a2a" stroke-width="0.5"/>
+<text x="437" y="319" style="font-family:'Rajdhani','Arial',sans-serif;fill:#e8e0d0;font-size:12px;font-weight:bold;">Audio</text>
+<text x="437" y="335" style="font-family:'JetBrains Mono','Courier New',monospace;fill:#c0392b;font-size:11px;">Pipewire (OpenRC)</text>
+<text x="437" y="350" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:10px;">Low latency, no systemd socket</text>
+<line x1="220" y1="378" x2="640" y2="378" class="divider"/>
+<text x="220" y="400" style="font-family:'Rajdhani','Arial',sans-serif;fill:#a09888;font-size:12px;">By installing FenrirOS you agree to the licenses of included software.</text>
+<text x="600" y="400" text-anchor="end" style="font-family:'Rajdhani','Arial',sans-serif;fill:#c0392b;font-size:12px;font-weight:bold;">Next →</text>
+</svg>

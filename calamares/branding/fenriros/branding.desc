@@ -1,0 +1,34 @@
+# FenrirOS Calamares Branding
+# /usr/share/calamares/branding/fenriros/branding.desc
+
+---
+componentName: fenriros
+
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+
+strings:
+    productName:         FenrirOS
+    shortProductName:    FenrirOS
+    version:             0.1.0
+    shortVersion:        0.1
+    versionedName:       FenrirOS 0.1 "Midgard"
+    shortVersionedName:  FenrirOS 0.1
+    bootloaderEntryName: FenrirOS
+    productUrl:          https://fenrirlinux.org
+    supportUrl:          https://github.com/FenrirLinux/iso/issues
+    releaseNotesUrl:     https://fenrirlinux.org/release-notes
+
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+    productWelcome:      "welcome.png"
+
+slideshow:               "show.qml"
+slideshowAPI:            2
+
+style:
+    sidebarBackground:    "#0d0d0d"
+    sidebarText:          "#e8e0d0"
+    sidebarTextSelect:    "#c0392b"
+    sidebarTextHighlight: "#c0392b"

@@ -1,0 +1,90 @@
+<svg width="680" height="680" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+<style>
+  .bg{fill:#0d0d0d}
+  .wolf{fill:#1c1c1c;stroke:#c0392b;stroke-width:1.5;stroke-linejoin:miter}
+  .wolf-dark{fill:#111;stroke:#8b1a1a;stroke-width:1;stroke-linejoin:miter}
+  .wolf-mid{fill:#161616;stroke:#a02020;stroke-width:1;stroke-linejoin:miter}
+  .fang{fill:#e8e0d0;stroke:#c0392b;stroke-width:1;stroke-linejoin:miter}
+  .fang-s{fill:#c8c0b0;stroke:#8b1a1a;stroke-width:0.8}
+  .eye-glow{fill:#c0392b;opacity:0.1}
+  .eye-outer{fill:#c0392b}
+  .eye-iris{fill:#ff2200}
+  .eye-slit{fill:#050202}
+  .eye-shine{fill:#ff8866;opacity:0.45}
+  .brow{fill:none;stroke:#c0392b;stroke-width:1.2;stroke-linecap:round;opacity:0.6}
+  .scar{fill:none;stroke:#c0392b;stroke-width:1.2;stroke-linecap:round;opacity:0.7}
+  .nose{fill:none;stroke:#c0392b;stroke-width:1.2}
+  .fur{fill:none;stroke:#c0392b;stroke-width:0.6;stroke-linecap:round;opacity:0.22}
+  .chain{fill:none;stroke:#2a2a2a;stroke-width:2.5;stroke-linecap:round}
+  .link{fill:none;stroke:#333;stroke-width:2}
+  .break{fill:none;stroke:#c0392b;stroke-width:2;stroke-linecap:round}
+  .ring{fill:none;stroke:#c0392b;stroke-width:0.5;opacity:0.15}
+  .rune{fill:none;stroke:#c0392b;stroke-width:0.8;opacity:0.35}
+  .wm{font-family:Impact,sans-serif;fill:#e8e0d0;font-size:58px;letter-spacing:12px}
+  .sub{font-family:Arial,sans-serif;fill:#c0392b;font-size:13px;letter-spacing:10px}
+</style>
+<rect width="680" height="680" class="bg"/>
+<circle cx="340" cy="300" r="230" class="ring"/>
+<circle cx="340" cy="300" r="200" class="ring" style="opacity:0.08"/>
+<line x1="340" y1="60" x2="340" y2="78" class="rune"/>
+<line x1="332" y1="66" x2="348" y2="66" class="rune"/>
+<line x1="332" y1="72" x2="340" y2="66" class="rune"/>
+<line x1="590" y1="240" x2="572" y2="240" class="rune"/>
+<line x1="582" y1="232" x2="582" y2="248" class="rune"/>
+<line x1="90" y1="240" x2="108" y2="240" class="rune"/>
+<line x1="98" y1="232" x2="98" y2="248" class="rune"/>
+<line x1="560" y1="380" x2="548" y2="368" class="rune"/>
+<line x1="548" y1="380" x2="560" y2="368" class="rune"/>
+<line x1="120" y1="380" x2="132" y2="368" class="rune"/>
+<line x1="132" y1="380" x2="120" y2="368" class="rune"/>
+<polygon points="340,120 260,145 220,190 205,250 215,310 240,360 270,395 260,430 240,460 300,445 320,420 340,430 360,420 380,445 440,460 420,430 410,395 440,360 465,310 475,250 460,190 420,145" class="wolf"/>
+<polygon points="220,190 200,150 175,130 195,175 205,210" class="wolf-dark"/>
+<polygon points="460,190 480,150 505,130 485,175 475,210" class="wolf-dark"/>
+<polygon points="220,190 205,160 215,185" fill="#c0392b" style="opacity:0.5"/>
+<polygon points="460,190 475,160 465,185" fill="#c0392b" style="opacity:0.5"/>
+<polygon points="220,190 205,250 215,310 240,360 270,395 260,430 240,460 300,445 320,420 340,430 360,420 380,445 440,460 420,430 410,395 440,360 465,310 475,250 460,190 420,145 340,120 260,145" class="wolf-mid" style="opacity:0.4"/>
+<line x1="268" y1="310" x2="252" y2="282" class="fur"/>
+<line x1="278" y1="305" x2="264" y2="276" class="fur"/>
+<line x1="412" y1="310" x2="428" y2="282" class="fur"/>
+<line x1="402" y1="305" x2="416" y2="276" class="fur"/>
+<ellipse cx="285" cy="228" rx="32" ry="24" class="eye-glow"/>
+<ellipse cx="395" cy="228" rx="32" ry="24" class="eye-glow"/>
+<path d="M258,215 Q272,200 285,207 Q300,198 312,213 Q315,228 306,240 Q292,250 278,246 Q262,242 258,228 Z" class="eye-outer"/>
+<path d="M368,213 Q381,198 395,207 Q409,198 422,213 Q425,228 418,240 Q402,250 388,246 Q372,242 368,228 Z" class="eye-outer"/>
+<path d="M264,220 Q275,208 285,214 Q296,207 305,220 Q302,234 288,239 Q273,234 264,220 Z" class="eye-iris"/>
+<path d="M374,220 Q385,208 395,214 Q406,207 415,220 Q412,234 398,239 Q383,234 374,220 Z" class="eye-iris"/>
+<ellipse cx="285" cy="222" rx="6" ry="14" class="eye-slit"/>
+<ellipse cx="395" cy="222" rx="6" ry="14" class="eye-slit"/>
+<ellipse cx="279" cy="214" rx="3" ry="4" class="eye-shine"/>
+<ellipse cx="389" cy="214" rx="3" ry="4" class="eye-shine"/>
+<path d="M258,212 L250,203 L260,200" class="brow"/>
+<path d="M312,210 L320,201 L312,198" class="brow"/>
+<path d="M368,210 L360,201 L368,198" class="brow"/>
+<path d="M422,212 L430,203 L420,200" class="brow"/>
+<path d="M253,186 Q261,170 272,181" class="scar"/>
+<path d="M408,181 Q418,168 428,181" class="scar"/>
+<path d="M315,305 Q340,320 365,305" class="nose"/>
+<path d="M330,320 Q340,330 350,320" class="nose" style="opacity:0.5"/>
+<polygon points="295,340 305,320 315,340 310,385 300,390" class="fang"/>
+<polygon points="325,345 332,322 340,345 337,390 328,393" class="fang"/>
+<polygon points="355,345 363,322 370,345 367,390 357,393" class="fang"/>
+<polygon points="385,340 395,320 405,340 400,385 390,390" class="fang"/>
+<polygon points="295,340 303,321 307,340 304,375 298,377" class="fang-s"/>
+<polygon points="325,345 331,324 334,345 331,380 326,382" class="fang-s"/>
+<polygon points="355,345 361,324 364,345 361,380 356,382" class="fang-s"/>
+<polygon points="385,340 393,321 397,340 394,375 388,377" class="fang-s"/>
+<path d="M260,430 Q240,455 225,470 Q215,490 220,510" class="chain"/>
+<ellipse cx="237" cy="448" rx="9" ry="5" transform="rotate(-30,237,448)" class="link"/>
+<ellipse cx="226" cy="465" rx="9" ry="5" transform="rotate(20,226,465)" class="link"/>
+<ellipse cx="220" cy="483" rx="9" ry="5" transform="rotate(-15,220,483)" class="link"/>
+<path d="M218,498 L205,520" class="break"/>
+<path d="M223,500 L237,518" class="break"/>
+<path d="M420,430 Q440,455 455,470 Q465,490 460,510" class="chain"/>
+<ellipse cx="443" cy="448" rx="9" ry="5" transform="rotate(30,443,448)" class="link"/>
+<ellipse cx="454" cy="465" rx="9" ry="5" transform="rotate(-20,454,465)" class="link"/>
+<ellipse cx="460" cy="483" rx="9" ry="5" transform="rotate(15,460,483)" class="link"/>
+<path d="M462,498 L475,520" class="break"/>
+<path d="M457,500 L443,518" class="break"/>
+<text x="340" y="600" text-anchor="middle" class="wm">FENRIROS</text>
+<text x="340" y="626" text-anchor="middle" class="sub">UNCHAINED</text>
+</svg>
