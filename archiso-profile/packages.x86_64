@@ -15,6 +15,7 @@ mkinitcpio
 # --- OpenRC ---
 openrc
 elogind
+elogind-openrc
 seatd
 
 # --- Bootloader ---
