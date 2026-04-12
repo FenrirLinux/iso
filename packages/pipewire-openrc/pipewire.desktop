@@ -1,0 +1,16 @@
+[Desktop Entry]
+# FenrirOS - Pipewire autostart for KDE Plasma
+# /etc/xdg/autostart/pipewire.desktop
+#
+# Since OpenRC doesn't have systemd user socket activation,
+# we autostart Pipewire via XDG autostart when the desktop session begins.
+# This fires after elogind has set up XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS.
+
+Name=Pipewire
+Comment=Pipewire multimedia daemon
+Exec=/usr/bin/pipewire
+Type=Application
+NoDisplay=true
+X-KDE-autostart-condition=
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Phase=Initialization

@@ -1,0 +1,23 @@
+#!/sbin/openrc-run
+# FenrirOS - WirePlumber session manager for OpenRC
+# /etc/init.d/wireplumber
+#
+# WirePlumber is the session manager for Pipewire.
+# It handles routing audio between apps and devices.
+# Under systemd it uses user socket activation.
+# Under OpenRC we launch it as part of the user session.
+
+name="wireplumber"
+description="WirePlumber Pipewire session manager"
+
+depend() {
+    need dbus elogind pipewire-user
+}
+
+start() {
+    ebegin "WirePlumber session manager ready"
+    # WirePlumber is started per-user via KDE autostart
+    # or ~/.config/autostart/wireplumber.desktop
+    # This service just validates dependencies are met
+    eend 0
+}

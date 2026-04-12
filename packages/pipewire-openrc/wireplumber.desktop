@@ -1,0 +1,15 @@
+[Desktop Entry]
+# FenrirOS - WirePlumber autostart for KDE Plasma
+# /etc/xdg/autostart/wireplumber.desktop
+#
+# WirePlumber must start after Pipewire.
+# KDE Plasma respects X-GNOME-Autostart-Phase for ordering.
+
+Name=WirePlumber
+Comment=WirePlumber Pipewire session manager
+Exec=/usr/bin/wireplumber
+Type=Application
+NoDisplay=true
+X-KDE-autostart-condition=
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Phase=Initialization

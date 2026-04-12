@@ -1,0 +1,37 @@
+#!/sbin/openrc-run
+# FenrirOS - Pipewire user session service for OpenRC
+# /etc/init.d/pipewire-user
+#
+# Pipewire normally relies on systemd user socket activation.
+# Under OpenRC + elogind, we start it per-user after login
+# using the elogind session environment.
+
+name="pipewire-user"
+description="Pipewire multimedia daemon (user session)"
+
+# This service is started per-user, not system-wide.
+# It should be called from the user session startup
+# (e.g. KDE autostart or ~/.config/autostart)
+# This system service just ensures the runtime environment is ready.
+
+depend() {
+    need dbus elogind
+    after sddm
+}
+
+start() {
+    ebegin "Preparing Pipewire runtime environment"
+
+    # Ensure /run/user/<uid> directories exist for all logged-in users
+    for uid_dir in /run/user/*/; do
+        uid=$(basename "$uid_dir")
+        if [ -d "$uid_dir" ]; then
+            checkpath --directory \
+                --owner "${uid}:${uid}" \
+                --mode 0700 \
+                "${uid_dir}"
+        fi
+    done
+
+    eend 0
+}
