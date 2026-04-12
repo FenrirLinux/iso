@@ -1,0 +1,29 @@
+#!/sbin/openrc-run
+# FenrirOS - Pipewire OpenRC service
+# Handles audio without systemd socket activation
+
+name="pipewire"
+description="Pipewire multimedia framework"
+
+# Pipewire runs per-user, so we use a helper approach
+# This service ensures the runtime environment is ready
+
+depend() {
+    need dbus elogind
+    after seatd
+}
+
+start() {
+    ebegin "Starting Pipewire session service"
+    # Pipewire is started per-user via elogind session
+    # This service ensures dependencies are met and
+    # the XDG_RUNTIME_DIR is properly set up
+    checkpath --directory --owner root:root --mode 0755 /run/user
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping Pipewire"
+    # Per-user instances are handled by elogind session cleanup
+    eend 0
+}

@@ -1,0 +1,133 @@
+# ==============================================================================
+# FenrirOS - packages.x86_64
+# Core package list for the live ISO
+# ==============================================================================
+
+# --- Base System ---
+base
+base-devel
+linux-cachyos          # CachyOS performance kernel
+linux-cachyos-headers
+linux-firmware
+linux-firmware-whence
+mkinitcpio
+
+# --- OpenRC (replaces systemd) ---
+openrc
+openrc-base            # Basic OpenRC services
+elogind                # Standalone logind - satisfies systemd-logind deps
+elogind-openrc         # OpenRC service file for elogind
+seatd                  # Seat management (fallback)
+seatd-openrc
+
+# --- Bootloader ---
+grub
+efibootmgr
+os-prober
+
+# --- Networking ---
+networkmanager
+networkmanager-openrc  # OpenRC service for NetworkManager
+network-manager-applet
+wpa_supplicant
+dhcpcd
+dhcpcd-openrc
+
+# --- Audio (Pipewire without systemd socket activation) ---
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+wireplumber
+pipewire-openrc        # OpenRC service for pipewire (to be patched/created)
+
+# --- Display / Graphics ---
+xorg-server
+xorg-xinit
+wayland
+xwayland
+
+# GPU drivers (all included, installer selects correct one)
+mesa
+vulkan-radeon
+vulkan-intel
+nvidia-dkms
+nvidia-utils
+lib32-nvidia-utils
+lib32-mesa
+lib32-vulkan-radeon
+lib32-vulkan-intel
+
+# --- Desktop Environment (KDE Plasma) ---
+plasma-desktop
+plasma-wayland-session
+kwin
+dolphin
+konsole
+sddm
+sddm-openrc            # OpenRC service for SDDM
+
+# --- Gaming Stack ---
+steam
+steam-native-runtime
+lib32-glibc
+lib32-gcc-libs
+gamemode               # Will need elogind patch
+lib32-gamemode
+mangohud
+lib32-mangohud
+lutris
+wine-staging
+winetricks
+proton-ge-custom
+heroic-games-launcher
+
+# --- SCX Schedulers (CachyOS performance) ---
+scx-scheds             # LAVD, BORE, etc.
+
+# --- Filesystem ---
+btrfs-progs
+dosfstools
+e2fsprogs
+ntfs-3g
+exfatprogs
+
+# --- System Utilities ---
+sudo
+polkit
+polkit-openrc
+dbus
+dbus-openrc
+udev                   # eudev or udev compatible with OpenRC
+acpid
+acpid-openrc
+cronie
+cronie-openrc
+openssh
+openssh-openrc
+
+# --- FenrirOS Installer & Tools ---
+calamares              # GUI installer
+fenrir-installer       # Custom CLI installer wrapper (our script)
+fenrir-welcome         # First-boot welcome app
+
+# --- CLI Utilities ---
+bash
+zsh
+git
+curl
+wget
+nano
+vim
+htop
+fastfetch
+rsync
+unzip
+p7zip
+
+# --- Fonts ---
+ttf-dejavu
+ttf-liberation
+noto-fonts
+noto-fonts-emoji
+ttf-nerd-fonts-symbols

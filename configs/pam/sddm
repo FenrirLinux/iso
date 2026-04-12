@@ -1,0 +1,23 @@
+#
+# FenrirOS - /etc/pam.d/sddm
+# PAM configuration for SDDM display manager with elogind
+#
+
+# --- Authentication ---
+auth        include     system-login
+
+# --- Account ---
+account     include     system-login
+
+# --- Password ---
+password    include     system-login
+
+# --- Session ---
+session     required    pam_loginuid.so
+# elogind session setup - critical for:
+# - XDG_RUNTIME_DIR (/run/user/<uid>)
+# - DBUS_SESSION_BUS_ADDRESS (unix:path=/run/user/<uid>/bus)
+# - Proper seat assignment for GPU/input access
+# - Steam, GameMode, Pipewire, Wayland compositors
+session     optional    pam_elogind.so
+session     include     system-login

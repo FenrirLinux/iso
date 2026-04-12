@@ -1,0 +1,34 @@
+#
+# FenrirOS - /etc/pam.d/system-login
+# PAM configuration for system logins with elogind session management
+#
+# This file is the base for all login services on FenrirOS.
+# elogind is loaded here so every login (SDDM, TTY, SSH) gets
+# a proper session with DBUS_SESSION_BUS_ADDRESS set correctly.
+#
+
+# --- Authentication ---
+auth       required   pam_tally2.so        onerr=succeed file=/var/log/faillog
+auth       required   pam_shells.so
+auth       requisite  pam_nologin.so
+auth       include    system-auth
+
+# --- Account ---
+account    required   pam_access.so
+account    required   pam_nologin.so
+account    include    system-auth
+
+# --- Password ---
+password   include    system-auth
+
+# --- Session ---
+# pam_loginuid must come before elogind
+session    optional   pam_loginuid.so
+# elogind - provides session management, sets XDG_RUNTIME_DIR,
+# DBUS_SESSION_BUS_ADDRESS, and other session environment variables
+# This is what makes Steam, GameMode, and Pipewire work correctly
+session    optional   pam_elogind.so
+session    optional   pam_motd.so          motd=/etc/motd
+session    optional   pam_mail.so          dir=/var/spool/mail standard quiet
+session    required   pam_env.so
+session    include    system-auth

@@ -1,0 +1,29 @@
+#
+# FenrirOS - /etc/environment
+# System-wide environment variables
+# These are set for all sessions regardless of login method
+#
+
+# --- XDG Base Directories ---
+# XDG_RUNTIME_DIR is set per-user by elogind via PAM
+# These are the static defaults
+XDG_DATA_DIRS=/usr/local/share:/usr/share
+XDG_CONFIG_DIRS=/etc/xdg
+
+# --- Gaming optimizations ---
+# Use native Mesa/Vulkan by default for best performance
+RADV_PERFTEST=gpl
+# Allow GameMode to work across all sessions
+GAMEMODE_AUTO=1
+
+# --- Wayland ---
+# Prefer Wayland for KDE apps
+QT_QPA_PLATFORM=wayland;xcb
+# Firefox Wayland support
+MOZ_ENABLE_WAYLAND=1
+# Electron apps Wayland support  
+ELECTRON_OZONE_PLATFORM_HINT=wayland
+
+# --- Java ---
+# Fix Java apps on Wayland/non-reparenting WMs
+_JAVA_AWT_WM_NONREPARENTING=1
