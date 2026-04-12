@@ -1,0 +1,19 @@
+#!/usr/bin/ash
+# FenrirOS custom udev hook for mkinitcpio
+# Uses Artix eudev - udevd at /usr/bin/udevd
+
+run_earlyhook() {
+    /usr/bin/udevd --daemon --resolve-names=never
+}
+
+run_hook() {
+    msg ":: Triggering uevents..."
+    udevadm trigger --action=add --type=subsystems
+    udevadm trigger --action=add --type=devices
+    udevadm settle
+}
+
+run_cleanuphook() {
+    udevadm control --exit
+    udevadm info --cleanup-db
+}

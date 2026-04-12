@@ -1,0 +1,20 @@
+#!/bin/bash
+# mkinitcpio install script for fenrir-udev hook
+
+build() {
+    # Artix udevd is at /usr/bin/udevd
+    add_binary /usr/bin/udevd
+    add_binary /usr/bin/udevadm
+    add_binary kill
+
+    # Add udev rules
+    add_full_dir /usr/lib/udev
+
+    add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+FenrirOS udev hook - uses Artix eudev (/usr/bin/udevd)
+HELPEOF
+}
