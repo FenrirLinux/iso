@@ -19,6 +19,8 @@ elogind-openrc
 seatd
 dbus
 dbus-openrc
+eudev
+udev-openrc
 
 # --- Bootloader ---
 grub
