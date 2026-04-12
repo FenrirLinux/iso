@@ -1,24 +1,21 @@
 # ==============================================================================
 # FenrirOS - packages.x86_64
-# Core package list for the live ISO
+# Verified against CachyOS znver4 + Arch repos
 # ==============================================================================
 
 # --- Base System ---
 base
 base-devel
-linux-cachyos          # CachyOS performance kernel
+linux-cachyos
 linux-cachyos-headers
 linux-firmware
 linux-firmware-whence
 mkinitcpio
 
-# --- OpenRC (replaces systemd) ---
+# --- OpenRC ---
 openrc
-openrc-base            # Basic OpenRC services
-elogind                # Standalone logind - satisfies systemd-logind deps
-elogind-openrc         # OpenRC service file for elogind
-seatd                  # Seat management (fallback)
-seatd-openrc
+elogind
+seatd
 
 # --- Bootloader ---
 grub
@@ -29,63 +26,46 @@ mtools
 
 # --- Networking ---
 networkmanager
-networkmanager-openrc  # OpenRC service for NetworkManager
 network-manager-applet
 wpa_supplicant
 dhcpcd
-dhcpcd-openrc
 
-# --- Audio (Pipewire without systemd socket activation) ---
+# --- Audio ---
 pipewire
 pipewire-alsa
 pipewire-jack
 pipewire-pulse
 wireplumber
-pipewire-openrc        # OpenRC service for pipewire (to be patched/created)
 
-# --- Display / Graphics ---
+# --- Display ---
 xorg-server
 xorg-xinit
 wayland
-xwayland
 
-# GPU drivers (all included, installer selects correct one)
+# --- GPU drivers ---
 mesa
 vulkan-radeon
 vulkan-intel
-nvidia-dkms
-nvidia-utils
-lib32-nvidia-utils
 lib32-mesa
 lib32-vulkan-radeon
 lib32-vulkan-intel
 
-# --- Desktop Environment (KDE Plasma) ---
+# --- Desktop Environment ---
 plasma-desktop
-plasma-wayland-session
 kwin
 dolphin
 konsole
 sddm
-sddm-openrc            # OpenRC service for SDDM
 
 # --- Gaming Stack ---
 steam
-steam-native-runtime
 lib32-glibc
 lib32-gcc-libs
-gamemode               # Will need elogind patch
-lib32-gamemode
 mangohud
 lib32-mangohud
 lutris
 wine-staging
 winetricks
-proton-ge-custom
-heroic-games-launcher
-
-# --- SCX Schedulers (CachyOS performance) ---
-scx-scheds             # LAVD, BORE, etc.
 
 # --- Filesystem ---
 btrfs-progs
@@ -97,21 +77,10 @@ exfatprogs
 # --- System Utilities ---
 sudo
 polkit
-polkit-openrc
 dbus
-dbus-openrc
-udev                   # eudev or udev compatible with OpenRC
 acpid
-acpid-openrc
 cronie
-cronie-openrc
 openssh
-openssh-openrc
-
-# --- FenrirOS Installer & Tools ---
-calamares              # GUI installer
-fenrir-installer       # Custom CLI installer wrapper (our script)
-fenrir-welcome         # First-boot welcome app
 
 # --- CLI Utilities ---
 bash
@@ -125,7 +94,7 @@ htop
 fastfetch
 rsync
 unzip
-p7zip
+7zip
 
 # --- Fonts ---
 ttf-dejavu
