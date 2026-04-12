@@ -1,42 +1,56 @@
-# FenrirOS Website
+# FenrirOS - Unchained 🐺
 
-Official website for [FenrirOS](https://fenrirlinux.org) — a gaming-focused Linux
-distribution built on OpenRC and elogind. Unchained from systemd.
+> Gaming Linux, unchained from systemd.
 
-## Stack
+FenrirOS is an Arch-based gaming Linux distribution built on OpenRC and elogind,
+combining the performance of CachyOS kernels and SCX schedulers with a systemd-free
+init system — making OpenRC approachable for everyday gamers.
 
-Plain HTML, CSS, and JavaScript. No frameworks, no build step, no dependencies.
-Just drop `index.html` and it works.
+## Project Structure
 
-## Deployment
-
-This site is deployed via [Cloudflare Pages](https://pages.cloudflare.com) directly
-from this repository. Any push to `main` triggers an automatic deployment.
-
-## Development
-
-Clone the repo and open `index.html` in your browser — that's it.
-
-```bash
-git clone https://github.com/FenrirLinux/website.git
-cd website
-xdg-open index.html
+```
+fenriros/
+├── archiso-profile/          # Main archiso build profile
+│   ├── profiledef.sh         # ISO metadata and build settings
+│   ├── pacman.conf           # Package repos (CachyOS + Arch)
+│   ├── packages.x86_64       # All packages included in ISO
+│   └── airootfs/             # Filesystem overlay (maps to /)
+├── packages/                 # Custom patched packages
+│   └── gamemode-elogind/     # GameMode patched for OpenRC
+├── configs/                  # System configuration files
+│   └── pam/                  # PAM elogind session setup
+└── docs/                     # Documentation
 ```
 
-## Contributing
+## Tech Stack
 
-Found a typo or want to suggest a change? Open an issue or pull request.
-Keep changes focused — this is a project website, not a playground.
+| Component | Choice | Reason |
+|-----------|--------|--------|
+| Base | Arch Linux | Rolling, flexible, large repo |
+| Kernel | linux-cachyos | Performance patches, BORE/LAVD |
+| Init | OpenRC | Lightweight, fast, systemd-free |
+| Session | elogind | Standalone logind for DEs/Steam |
+| Scheduler | SCX (LAVD) | Best gaming latency |
+| Audio | Pipewire | Modern audio, works without systemd |
+| DE | KDE Plasma | Wayland-ready, gamer-friendly |
+| Gaming | Steam + Proton + Lutris | Full Linux gaming stack |
 
-## License
+## Building the ISO
 
-Website code is MIT licensed. See [LICENSE](./LICENSE) for details.
+### Prerequisites (on CachyOS/Arch)
 
-**The FenrirOS name, logo, and branding are not covered by the MIT license
-and may not be used without permission.**
+```bash
+sudo pacman -S archiso
+```
+
+### Build
+
+```bash
+sudo mkarchiso -v -w /tmp/fenriros-work -o /tmp/fenriros-out archiso-profile/
+```
 
 ## Links
 
-- 🌐 Website: [fenrirlinux.org](https://fenrirlinux.org)
-- 🐺 ISO Repo: [github.com/FenrirLinux/iso](https://github.com/FenrirLinux/iso)
-- 💬 Discord: Coming soon
+- Website: https://fenrirlinux.org
+- GitHub: https://github.com/FenrirLinux
+- Discord: Coming soon
