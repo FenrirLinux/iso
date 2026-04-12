@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# FenrirOS Installer Bootstrap
+# /usr/local/bin/fenrir-installer
+# ==============================================================================
+# This wraps the installation process, ensuring OpenRC services
+# and elogind are correctly configured on the target system.
+# ==============================================================================
+
+set -euo pipefail
+
+FENRIR_VERSION="0.1.0-alpha"
+FENRIR_LOG="/tmp/fenrir-install.log"
+TARGET="/mnt"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+WOLF='\033[1;37m'
+NC='\033[0m'
+
+banner() {
+    echo -e "${WOLF}"
+    cat << 'EOF'
+    ███████╗███████╗███╗   ██╗██████╗ ██╗██████╗  ██████╗ ███████╗
+    ██╔════╝██╔════╝████╗  ██║██╔══██╗██║██╔══██╗██╔═══██╗██╔════╝
+    █████╗  █████╗  ██╔██╗ ██║██████╔╝██║██████╔╝██║   ██║███████╗
+    ██╔══╝  ██╔══╝  ██║╚██╗██║██╔══██╗██║██╔══██╗██║   ██║╚════██║
+    ██║     ███████╗██║ ╚████║██║  ██║██║██║  ██║╚██████╔╝███████║
+    ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+                         U N C H A I N E D
+EOF
+    echo -e "${NC}"
+    echo -e "${BLUE}  FenrirOS Installer v${FENRIR_VERSION}${NC}"
+    echo -e "${BLUE}  Gaming Linux, Unchained from systemd${NC}\n"
+}
+
+log() { echo -e "${GREEN}[FenrirOS]${NC} $1" | tee -a "$FENRIR_LOG"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1" | tee -a "$FENRIR_LOG"; }
+error() { echo -e "${RED}[ERROR]${NC} $1" | tee -a "$FENRIR_LOG"; exit 1; }
+
+check_root() {
+    [[ $EUID -eq 0 ]] || error "Installer must be run as root"
+}
+
+check_uefi() {
+    if [[ -d /sys/firmware/efi ]]; then
+        log "UEFI boot detected"
+        BOOT_MODE="uefi"
+    else
+        log "BIOS/Legacy boot detected"
+        BOOT_MODE="bios"
+    fi
+}
+
+configure_openrc_services() {
+    log "Configuring OpenRC services on target..."
+
+    # Services to enable at boot
+    local services=(
+        "dbus"
+        "elogind"
+        "NetworkManager"
+        "sddm"
+        "acpid"
+        "cronie"
+        "seatd"
+    )
+
+    for svc in "${services[@]}"; do
+        arch-chroot "$TARGET" rc-update add "$svc" default 2>>"$FENRIR_LOG" \
+            && log "  Enabled: $svc" \
+            || warn "  Could not enable: $svc (may not be installed)"
+    done
+
+    # Boot-level services
+    arch-chroot "$TARGET" rc-update add udev sysinit
+    arch-chroot "$TARGET" rc-update add dmesg sysinit
+
+    log "OpenRC services configured"
+}
+
+configure_elogind() {
+    log "Configuring elogind for gaming session management..."
+
+    # Ensure elogind config dir exists
+    mkdir -p "$TARGET/etc/elogind"
+
+    cat > "$TARGET/etc/elogind/logind.conf" << 'ELOGIND'
+[Login]
+# FenrirOS elogind configuration
+# Tuned for gaming - prevent sleep during long gaming sessions
+HandlePowerKey=poweroff
+HandleSuspendKey=suspend
+HandleHibernateKey=hibernate
+HandleLidSwitch=suspend
+HandleLidSwitchExternalPower=ignore
+IdleAction=ignore
+IdleActionSec=0
+KillUserProcesses=no
+RemoveIPC=yes
+# Allow more controllers/devices per seat
+InhibitorsMax=8192
+ELOGIND
+
+    log "elogind configured"
+}
+
+configure_gpu() {
+    log "Detecting GPU..."
+
+    if lspci | grep -qi "nvidia"; then
+        log "NVIDIA GPU detected - configuring drivers"
+        arch-chroot "$TARGET" bash -c "
+            # Add nvidia modules to mkinitcpio
+            sed -i 's/MODULES=()/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
+            mkinitcpio -P
+        "
+        # Add nvidia DRM modeset kernel param
+        arch-chroot "$TARGET" sed -i \
+            's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="nvidia-drm.modeset=1 /' \
+            /etc/default/grub
+    elif lspci | grep -qi "amd\|radeon"; then
+        log "AMD GPU detected - using amdgpu/mesa"
+        arch-chroot "$TARGET" bash -c "
+            sed -i 's/MODULES=()/MODULES=(amdgpu)/' /etc/mkinitcpio.conf
+            mkinitcpio -P
+        "
+    else
+        log "Intel/generic GPU - using mesa defaults"
+    fi
+}
+
+configure_gaming() {
+    log "Applying FenrirOS gaming optimizations..."
+
+    # GameMode config
+    cat > "$TARGET/etc/gamemode.ini" << 'GAMEMODE'
+[general]
+reaper_freq=5
+defaultgov=performance
+softrealtime=auto
+renice=-10
+ioprio=0
+
+[gpu]
+apply_gpu_optimisations=accept-responsibility
+gpu_device=0
+amd_performance_level=high
+
+[cpu]
+park_cores=no
+pin_cores=yes
+
+[filter]
+whitelist=
+blacklist=
+GAMEMODE
+
+    # SCX scheduler - default to LAVD for gaming
+    mkdir -p "$TARGET/etc/scx"
+    echo "SCHEDULER=scx_lavd" > "$TARGET/etc/scx/scheduler.conf"
+
+    # Increase vm.max_map_count for games (especially Steam/Proton)
+    echo "vm.max_map_count=2147483642" >> "$TARGET/etc/sysctl.d/99-fenriros-gaming.conf"
+
+    # Reduce swappiness for gaming
+    echo "vm.swappiness=10" >> "$TARGET/etc/sysctl.d/99-fenriros-gaming.conf"
+
+    log "Gaming optimizations applied"
+}
+
+main() {
+    banner
+    check_root
+    check_uefi
+
+    log "Starting FenrirOS installation..."
+    log "Log file: $FENRIR_LOG"
+
+    # If Calamares is available, launch it
+    # Otherwise fall back to guided CLI install
+    if command -v calamares &>/dev/null && [[ -z "${FENRIR_CLI:-}" ]]; then
+        log "Launching Calamares GUI installer..."
+        calamares
+    else
+        log "Launching CLI installer..."
+        # TODO: guided CLI install flow
+        error "CLI installer not yet implemented. Run 'calamares' for GUI install."
+    fi
+
+    configure_openrc_services
+    configure_elogind
+    configure_gpu
+    configure_gaming
+
+    log "Post-install configuration complete!"
+    echo -e "\n${WOLF}  FenrirOS has been installed. Welcome to the pack.${NC}\n"
+}
+
+main "$@"
