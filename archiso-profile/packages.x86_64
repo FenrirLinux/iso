@@ -11,7 +11,7 @@ linux-cachyos-headers
 linux-firmware
 linux-firmware-whence
 mkinitcpio
-archiso
+mkinitcpio-archiso
 
 # --- OpenRC (from Artix [system]) ---
 openrc
