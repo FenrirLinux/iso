@@ -15,7 +15,6 @@ mkinitcpio
 # --- OpenRC ---
 openrc
 elogind
-elogind-openrc
 seatd
 
 # --- Bootloader ---
@@ -78,7 +77,7 @@ exfatprogs
 # --- System Utilities ---
 sudo
 polkit
-dbus
+dbus-nosystemd
 acpid
 cronie
 openssh
