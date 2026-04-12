@@ -1,0 +1,69 @@
+# Maintainer: FenrirOS Project <https://fenrirlinux.org>
+# Based on: gamemode by Feral Interactive
+# Patched for: elogind compatibility (OpenRC, no systemd)
+
+pkgname=gamemode-elogind
+pkgver=1.8.2
+pkgrel=1
+pkgdesc="Optimise Linux system performance on demand - patched for elogind/OpenRC"
+arch=('x86_64')
+url="https://github.com/FeralInteractive/gamemode"
+license=('BSD')
+depends=(
+    'dbus'
+    'elogind'        # replaces systemd dependency
+    'libinih'
+)
+makedepends=(
+    'meson'
+    'ninja'
+    'git'
+    'pkg-config'
+)
+provides=('gamemode' 'libgamemode.so' 'libgamemodeauto.so')
+conflicts=('gamemode')
+source=(
+    "gamemode-${pkgver}.tar.gz::https://github.com/FeralInteractive/gamemode/archive/refs/tags/${pkgver}.tar.gz"
+    "0001-elogind-replace-systemd.patch"
+    "0002-elogind-dbus-session.patch"
+)
+
+# Update these after downloading the source
+sha256sums=(
+    'SKIP'
+    'SKIP'
+    'SKIP'
+)
+
+prepare() {
+    cd "gamemode-${pkgver}"
+
+    # Apply elogind patches
+    patch -Np1 -i "${srcdir}/0001-elogind-replace-systemd.patch"
+    patch -Np1 -i "${srcdir}/0002-elogind-dbus-session.patch"
+}
+
+build() {
+    cd "gamemode-${pkgver}"
+
+    arch-meson build \
+        -Dwith-systemd=false \
+        -Dwith-elogind=true \
+        -Dwith-dbus=true \
+        -Dwith-examples=false \
+        -Dwith-sd-bus-provider=elogind
+
+    ninja -C build
+}
+
+package() {
+    cd "gamemode-${pkgver}"
+    DESTDIR="${pkgdir}" ninja -C build install
+
+    # Install license
+    install -Dm644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+    # Install default config
+    install -Dm644 example/gamemode.ini \
+        "${pkgdir}/usr/share/doc/${pkgname}/gamemode.ini.example"
+}

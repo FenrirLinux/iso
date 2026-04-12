@@ -1,0 +1,57 @@
+From: FenrirOS Project <https://fenrirlinux.org>
+Subject: [PATCH 2/2] Fix DBus session bus detection for elogind
+
+GameMode uses sd_bus_default_user() to connect to the user session bus.
+Under systemd this works via socket activation. Under elogind, the
+DBUS_SESSION_BUS_ADDRESS environment variable must be set, which elogind
+does via PAM. This patch adds a fallback to detect the session bus
+address when running under elogind/OpenRC.
+
+---
+ daemon/gamemode-dbus.c  | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/daemon/gamemode-dbus.c b/daemon/gamemode-dbus.c
+index 1234567..abcdefg 100644
+--- a/daemon/gamemode-dbus.c
++++ b/daemon/gamemode-dbus.c
+@@ -1,6 +1,8 @@
+ #include "gamemode-dbus.h"
+ #include <systemd/sd-bus.h>
++#ifdef USE_ELOGIND
++#include <elogind/sd-bus.h>
++#endif
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <unistd.h>
+ 
++#ifdef USE_ELOGIND
++/**
++ * elogind_find_session_bus - locate the user session bus under elogind/OpenRC
++ *
++ * Under systemd, sd_bus_default_user() works via socket activation.
++ * Under elogind, PAM sets DBUS_SESSION_BUS_ADDRESS, but this may not
++ * be available in all contexts (e.g. when gamemoded starts as a service).
++ * Fall back to the predictable runtime socket path if the env var is missing.
++ */
++static int elogind_find_session_bus(sd_bus **bus) {
++    const char *addr = getenv("DBUS_SESSION_BUS_ADDRESS");
++    if (!addr) {
++        uid_t uid = getuid();
++        char path[128];
++        snprintf(path, sizeof(path),
++                 "unix:path=/run/user/%d/bus", uid);
++        setenv("DBUS_SESSION_BUS_ADDRESS", path, 0);
++    }
++    return sd_bus_default_user(bus);
++}
++#endif
++
+ int gamemode_dbus_init(sd_bus **bus) {
++#ifdef USE_ELOGIND
++    return elogind_find_session_bus(bus);
++#else
+     return sd_bus_default_user(bus);
++#endif
+ }

@@ -1,0 +1,53 @@
+From: FenrirOS Project <https://fenrirlinux.org>
+Subject: [PATCH 1/2] Replace systemd dependency with elogind in meson build
+
+Replaces all systemd/libsystemd references in the meson build system
+with elogind equivalents. elogind provides a compatible sd-bus and
+sd-login API that gamemode can use without modification to the core
+logic — only the build system and include paths need updating.
+
+---
+ meson.build             | 24 +++++++++++++-----------
+ meson_options.txt       |  8 +++++++-
+ daemon/meson.build      | 12 ++++++------
+ 3 files changed, 26 insertions(+), 18 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index 1234567..abcdefg 100644
+--- a/meson.build
++++ b/meson.build
+@@ -1,6 +1,6 @@
+ project('gamemode', 'c',
+-    version: '1.8.2',
+-    default_options: ['c_std=c11', 'warning_level=2'])
++  version: '1.8.2',
++  default_options: ['c_std=c11', 'warning_level=2'])
+ 
+-# systemd/sd-bus provider selection
+-sd_bus_provider = get_option('with-sd-bus-provider')
++# sd-bus provider selection (systemd or elogind)
++sd_bus_provider = get_option('with-sd-bus-provider')
+ 
+-if sd_bus_provider == 'systemd'
+-    sdbus = dependency('libsystemd', version: '>= 230')
+-    sdbus_dep_name = 'libsystemd'
+-elif sd_bus_provider == 'elogind'
+-    sdbus = dependency('libelogind', version: '>= 239')
+-    sdbus_dep_name = 'libelogind'
+-else
+-    error('Unknown sd-bus provider: ' + sd_bus_provider)
+-endif
++if sd_bus_provider == 'systemd'
++  sdbus = dependency('libsystemd', version: '>= 230')
++  sdbus_dep_name = 'libsystemd'
++elif sd_bus_provider == 'elogind'
++  sdbus = dependency('libelogind', version: '>= 239')
++  sdbus_dep_name = 'libelogind'
++  # elogind headers are under <elogind/...> but provide a systemd compat path
++  add_project_arguments('-I/usr/include/elogind', language: 'c')
++  add_project_arguments('-DUSE_ELOGIND', language: 'c')
++else
++  error('Unknown sd-bus provider: ' + sd_bus_provider)
++endif
+ 
+ message('Using sd-bus provider: ' + sdbus_dep_name)

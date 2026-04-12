@@ -1,14 +1,12 @@
-*.tar
-*.tar.*
-*.jar
-*.exe
-*.msi
-*.deb
-*.zip
-*.tgz
-*.log
-*.log.*
-*.sig
+# OS
+.DS_Store
+Thumbs.db
 
-pkg/
-src/
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cloudflare
+.wrangler/

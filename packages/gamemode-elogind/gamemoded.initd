@@ -1,0 +1,52 @@
+#!/sbin/openrc-run
+# FenrirOS - gamemoded OpenRC service
+# Feral Interactive GameMode daemon for OpenRC/elogind
+
+name="gamemoded"
+description="GameMode optimisation daemon"
+command="/usr/bin/gamemoded"
+command_args="-d"
+command_background=true
+pidfile="/run/gamemoded.pid"
+command_user="root"
+
+depend() {
+    need dbus elogind
+    after polkit
+}
+
+start_pre() {
+    # Ensure the user session bus is accessible
+    # elogind sets this up via PAM, but we verify it here
+    if [ -z "${DBUS_SESSION_BUS_ADDRESS}" ]; then
+        local uid_dir="/run/user/$(id -u)"
+        if [ -S "${uid_dir}/bus" ]; then
+            export DBUS_SESSION_BUS_ADDRESS="unix:path=${uid_dir}/bus"
+        fi
+    fi
+
+    # Verify elogind is providing a valid session
+    if ! loginctl list-sessions &>/dev/null; then
+        eerror "elogind is not providing sessions - gamemoded may not work correctly"
+        eerror "Ensure elogind is running: rc-service elogind status"
+    fi
+}
+
+start() {
+    ebegin "Starting GameMode daemon"
+    start-stop-daemon --start \
+        --pidfile "${pidfile}" \
+        --make-pidfile \
+        --background \
+        --exec "${command}" \
+        -- ${command_args}
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping GameMode daemon"
+    start-stop-daemon --stop \
+        --pidfile "${pidfile}" \
+        --retry TERM/5/KILL/5
+    eend $?
+}
