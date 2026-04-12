@@ -3,7 +3,7 @@
 # archiso profile definition
 
 iso_name="fenriros"
-iso_label="FENRIR_$(date +%Y%m)"
+iso_label="FENRIR_202604"
 iso_publisher="FenrirOS <https://fenriros.org>"
 iso_application="FenrirOS - Unchained Gaming Linux"
 iso_version="0.1.0-alpha"
