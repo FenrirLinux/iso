@@ -82,7 +82,6 @@ exfatprogs
 # --- System Utilities ---
 sudo
 polkit
-polkit-openrc
 acpid
 acpid-openrc
 cronie
