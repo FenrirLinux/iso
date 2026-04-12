@@ -1,9 +1,9 @@
 # ==============================================================================
 # FenrirOS - packages.x86_64
-# Verified against CachyOS znver4 + Arch repos
+# Artix-based system + CachyOS kernel
 # ==============================================================================
 
-# --- Base System ---
+# --- Base System (from Artix [system]) ---
 base
 base-devel
 linux-cachyos
@@ -12,10 +12,13 @@ linux-firmware
 linux-firmware-whence
 mkinitcpio
 
-# --- OpenRC ---
+# --- OpenRC (from Artix [system]) ---
 openrc
 elogind
+elogind-openrc
 seatd
+dbus
+dbus-openrc
 
 # --- Bootloader ---
 grub
@@ -26,6 +29,7 @@ mtools
 
 # --- Networking ---
 networkmanager
+networkmanager-openrc
 network-manager-applet
 wpa_supplicant
 dhcpcd
@@ -56,6 +60,7 @@ kwin
 dolphin
 konsole
 sddm
+sddm-openrc
 
 # --- Gaming Stack ---
 steam
@@ -77,10 +82,13 @@ exfatprogs
 # --- System Utilities ---
 sudo
 polkit
-dbus-nosystemd
+polkit-openrc
 acpid
+acpid-openrc
 cronie
+cronie-openrc
 openssh
+openssh-openrc
 
 # --- CLI Utilities ---
 bash
