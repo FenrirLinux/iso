@@ -11,6 +11,16 @@ run_hook() {
     udevadm trigger --action=add --type=subsystems
     udevadm trigger --action=add --type=devices
     udevadm settle
+
+    # Wait for CD-ROM device to appear (needed for live ISO)
+    local i=0
+    while [ ! -b /dev/sr0 ] && [ $i -lt 30 ]; do
+        sleep 1
+        i=$((i + 1))
+    done
+    if [ -b /dev/sr0 ]; then
+        msg ":: CD-ROM device /dev/sr0 found"
+    fi
 }
 
 run_cleanuphook() {
