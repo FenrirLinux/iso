@@ -1,0 +1,9 @@
+root:x:0:root
+wheel:x:998:fenrir
+audio:x:995:fenrir
+video:x:994:fenrir
+storage:x:993:fenrir
+optical:x:992:fenrir
+input:x:991:fenrir
+network:x:90:fenrir
+fenrir:x:1000:
