@@ -90,6 +90,7 @@ cronie-openrc
 openssh
 openssh-openrc
 calamares
+squashfs-tools
 calamares
 
 # --- CLI Utilities ---
