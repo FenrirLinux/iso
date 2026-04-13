@@ -1,0 +1,23 @@
+#!/bin/bash
+# FenrirOS - detect installed cachyos kernel and create mkinitcpio preset
+
+KVER=$(ls /usr/lib/modules/ | grep cachyos | head -1)
+
+if [ -z "$KVER" ]; then
+    echo "ERROR: No cachyos kernel found in /usr/lib/modules/"
+    exit 1
+fi
+
+echo "Detected kernel: $KVER"
+
+mkdir -p /etc/mkinitcpio.d
+
+cat > /etc/mkinitcpio.d/linux-cachyos.preset << PRESET
+ALL_config=/etc/mkinitcpio.conf
+ALL_kver=$KVER
+PRESETS=(default)
+default_image=/boot/initramfs-linux-cachyos.img
+PRESET
+
+ln -sf /etc/mkinitcpio.d/linux-cachyos.preset /etc/mkinitcpio.d/linux.preset
+echo "Preset created for kernel $KVER"
