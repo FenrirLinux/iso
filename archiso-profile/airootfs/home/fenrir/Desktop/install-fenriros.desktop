@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install FenrirOS
+Comment=Install FenrirOS to your system
+Exec=pkexec calamares
+Icon=/usr/share/calamares/branding/fenriros/logo.png
+Terminal=false
+Categories=System;

@@ -89,6 +89,8 @@ cronie
 cronie-openrc
 openssh
 openssh-openrc
+calamares
+calamares
 
 # --- CLI Utilities ---
 bash

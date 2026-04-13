@@ -52,4 +52,7 @@ file_permissions=(
   ["/usr/local/bin/fenrir-installer"]="0:0:755"
   ["/usr/local/bin/fenrir-setup-pam"]="0:0:755"
   ["/usr/local/bin/fenrir-pacman"]="0:0:755"
+  ["/usr/lib/initcpio/hooks/fenrir-udev"]="0:0:755"
+  ["/usr/lib/initcpio/install/fenrir-udev"]="0:0:755"
+  ["/home/fenrir/Desktop/install-fenriros.desktop"]="1000:1000:755"
 )
