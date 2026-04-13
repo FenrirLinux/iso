@@ -49,6 +49,7 @@ pacman_options=('--overwrite' '/usr/share/man/man3/sd_*'
 
 file_permissions=(
   ["/etc/shadow"]="0:0:400"
+  ["/etc/sudoers.d/wheel"]="0:0:440"
   ["/usr/local/bin/fenrir-installer"]="0:0:755"
   ["/usr/local/bin/fenrir-setup-pam"]="0:0:755"
   ["/usr/local/bin/fenrir-pacman"]="0:0:755"
