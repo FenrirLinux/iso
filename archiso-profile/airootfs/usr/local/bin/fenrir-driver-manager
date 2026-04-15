@@ -1,0 +1,138 @@
+#!/bin/bash
+# FenrirOS Driver Manager
+# Detects GPU and manages drivers
+
+if [ "$EUID" -ne 0 ]; then
+    exec pkexec "$0" "$@"
+fi
+
+detect_gpu() {
+    lspci | grep -E "VGA|3D|Display"
+}
+
+detect_nvidia() {
+    lspci | grep -i nvidia | head -1
+}
+
+detect_amd() {
+    lspci | grep -i "amd\|radeon\|advanced micro" | grep -iE "VGA|3D|Display" | head -1
+}
+
+detect_intel() {
+    lspci | grep -i intel | grep -iE "VGA|3D|Display" | head -1
+}
+
+get_nvidia_drivers() {
+    echo "nvidia-open|NVIDIA Open (Recommended for RTX cards)|nvidia-open nvidia-open-dkms"
+    echo "nvidia-dkms|NVIDIA Proprietary DKMS|nvidia-dkms"
+    echo "nouveau|Nouveau Open Source (no 3D acceleration)|xf86-video-nouveau"
+}
+
+show_main() {
+    local gpu_info
+    gpu_info=$(detect_gpu)
+
+    local nvidia amd intel
+    nvidia=$(detect_nvidia)
+    amd=$(detect_amd)
+    intel=$(detect_intel)
+
+    local msg="<b>Detected GPU(s):</b>\n$gpu_info\n\n"
+
+    if [ -n "$nvidia" ]; then
+        msg+="<b>NVIDIA GPU detected:</b> $nvidia\n"
+    fi
+    if [ -n "$amd" ]; then
+        msg+="<b>AMD GPU detected:</b> $amd\n"
+    fi
+    if [ -n "$intel" ]; then
+        msg+="<b>Intel GPU detected:</b> $intel\n"
+    fi
+
+    ACTION=$(zenity --list \
+        --title="FenrirOS Driver Manager" \
+        --text="$msg\nWhat would you like to do?" \
+        --column="Action" \
+        --width=600 \
+        --height=300 \
+        "Manage NVIDIA Drivers" \
+        "Manage AMD Drivers" \
+        "Manage Intel Drivers" \
+        2>/dev/null)
+
+    case "$ACTION" in
+        "Manage NVIDIA Drivers") manage_nvidia ;;
+        "Manage AMD Drivers") manage_amd ;;
+        "Manage Intel Drivers") manage_intel ;;
+    esac
+}
+
+manage_nvidia() {
+    if [ -z "$(detect_nvidia)" ]; then
+        zenity --warning --title="No NVIDIA GPU" \
+            --text="No NVIDIA GPU detected on this system." --width=300
+        return
+    fi
+
+    DRIVER=$(zenity --list \
+        --title="FenrirOS - NVIDIA Driver Manager" \
+        --text="Select NVIDIA driver to install:" \
+        --column="Driver" \
+        --column="Description" \
+        --width=600 --height=300 \
+        "nvidia-open" "NVIDIA Open Kernel Module (RTX 20xx and newer - Recommended)" \
+        "nvidia-open-dkms" "NVIDIA Open DKMS (builds for any kernel)" \
+        "nouveau" "Nouveau Open Source Driver (basic display only)" \
+        2>/dev/null) || return
+
+    zenity --question \
+        --title="Install Driver" \
+        --text="Install $DRIVER?" --width=300 || return
+
+    pacman -S --noconfirm "$DRIVER" 2>&1 | zenity --progress \
+        --title="Installing $DRIVER..." \
+        --pulsate --auto-close --width=400
+
+    zenity --info --title="Done" \
+        --text="$DRIVER installed. Please reboot." --width=300
+}
+
+manage_amd() {
+    if [ -z "$(detect_amd)" ]; then
+        zenity --warning --title="No AMD GPU" \
+            --text="No AMD GPU detected on this system." --width=300
+        return
+    fi
+
+    zenity --info \
+        --title="FenrirOS - AMD Driver Manager" \
+        --text="AMD GPUs use the <b>amdgpu</b> open source driver which is already included in the kernel.\n\nFor Vulkan support, <b>vulkan-radeon</b> and <b>lib32-vulkan-radeon</b> are already installed.\n\nNo additional drivers needed!" \
+        --width=450
+}
+
+manage_intel() {
+    if [ -z "$(detect_intel)" ]; then
+        zenity --warning --title="No Intel GPU" \
+            --text="No Intel GPU detected on this system." --width=300
+        return
+    fi
+
+    DRIVER=$(zenity --list \
+        --title="FenrirOS - Intel Driver Manager" \
+        --text="Select Intel driver:" \
+        --column="Driver" \
+        --column="Description" \
+        --width=600 --height=250 \
+        "vulkan-intel" "Intel Vulkan Driver (already installed)" \
+        "intel-media-driver" "Intel Media Driver (hardware video acceleration)" \
+        2>/dev/null) || return
+
+    pacman -S --noconfirm "$DRIVER" 2>&1 | zenity --progress \
+        --title="Installing $DRIVER..." \
+        --pulsate --auto-close --width=400
+
+    zenity --info --title="Done" \
+        --text="$DRIVER installed successfully." --width=300
+}
+
+show_main

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FenrirOS Driver Manager
+Comment=Detect GPU and manage drivers
+Exec=sudo fenrir-driver-manager
+Icon=preferences-system
+Terminal=false
+Categories=System;

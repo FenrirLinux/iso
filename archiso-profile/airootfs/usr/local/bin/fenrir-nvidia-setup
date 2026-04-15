@@ -1,0 +1,80 @@
+#!/bin/bash
+# FenrirOS NVIDIA Auto-Detection
+# Runs during installation to install appropriate NVIDIA driver
+
+log() { echo "[NVIDIA] $1"; }
+
+detect_nvidia_gpu() {
+    lspci | grep -i nvidia | grep -iE "VGA|3D|Display"
+}
+
+get_nvidia_generation() {
+    local pci_id
+    pci_id=$(lspci -nn | grep -i nvidia | grep -iE "VGA|3D|Display" | grep -oP '\[10de:\K[0-9a-f]+' | head -1)
+    
+    if [ -z "$pci_id" ]; then
+        echo "unknown"
+        return
+    fi
+
+    # RTX 20xx and newer support nvidia-open
+    # Convert hex to decimal for comparison
+    local dec_id
+    dec_id=$(printf "%d" "0x$pci_id" 2>/dev/null)
+
+    # Device IDs for RTX 20xx (Turing) start around 0x1E00
+    if [ "$dec_id" -ge 7680 ] 2>/dev/null; then
+        echo "modern"  # RTX 20xx and newer - supports nvidia-open
+    else
+        echo "legacy"  # GTX and older - use nvidia-dkms
+    fi
+}
+
+main() {
+    log "Checking for NVIDIA GPU..."
+
+    local nvidia_gpu
+    nvidia_gpu=$(detect_nvidia_gpu)
+
+    if [ -z "$nvidia_gpu" ]; then
+        log "No NVIDIA GPU detected, skipping"
+        exit 0
+    fi
+
+    log "NVIDIA GPU detected: $nvidia_gpu"
+
+    local generation
+    generation=$(get_nvidia_generation)
+    log "GPU generation: $generation"
+
+    if [ "$generation" = "modern" ]; then
+        log "Installing nvidia-open (RTX 20xx or newer detected)..."
+        pacman -S --noconfirm --needed nvidia-open nvidia-open-dkms nvidia-utils lib32-nvidia-utils
+    else
+        log "Installing nvidia-dkms (legacy GPU detected)..."
+        pacman -S --noconfirm --needed nvidia-dkms nvidia-utils lib32-nvidia-utils
+    fi
+
+    # Add nvidia modules to mkinitcpio
+    if ! grep -q "nvidia" /etc/mkinitcpio.conf; then
+        sed -i 's/MODULES=()/MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)/' /etc/mkinitcpio.conf
+    fi
+
+    # Rebuild initramfs
+    mkinitcpio -P
+
+    # Add nvidia-drm.modeset kernel parameter to GRUB
+    if ! grep -q "nvidia-drm.modeset" /etc/default/grub 2>/dev/null; then
+        sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="nvidia-drm.modeset=1 /' /etc/default/grub 2>/dev/null || true
+    fi
+
+    grub-mkconfig -o /boot/grub/grub.cfg 2>/dev/null || true
+
+    log "NVIDIA driver installation complete"
+}
+
+main
+exit 0
+
+# Always exit cleanly - never break the install
+trap 'log "NVIDIA setup completed (or skipped)"; exit 0' EXIT

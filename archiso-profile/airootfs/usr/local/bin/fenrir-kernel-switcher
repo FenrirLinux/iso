@@ -1,0 +1,100 @@
+#!/bin/bash
+# FenrirOS Kernel Switcher
+# Allows users to switch between CachyOS kernel variants
+
+KERNELS=(
+    "linux-cachyos|CachyOS Default (BORE scheduler) - Recommended"
+    "linux-cachyos-lts|CachyOS LTS - Stable, long-term support"
+    "linux-cachyos-bore|CachyOS BORE - Best for low-latency gaming"
+    "linux-cachyos-lavd|CachyOS LAVD - Best for latency-sensitive workloads"
+    "linux-cachyos-rt|CachyOS RT - Real-time kernel"
+)
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    exec pkexec "$0" "$@"
+fi
+
+# Get currently installed kernels
+get_installed() {
+    pacman -Qq 2>/dev/null | grep "^linux-cachyos" | tr '\n' ' '
+}
+
+# Build zenity list
+build_list() {
+    local installed
+    installed=$(get_installed)
+    local list=()
+    for entry in "${KERNELS[@]}"; do
+        local pkg="${entry%%|*}"
+        local desc="${entry##*|}"
+        if echo "$installed" | grep -qw "$pkg"; then
+            list+=(TRUE "$pkg" "$desc (installed)")
+        else
+            list+=(FALSE "$pkg" "$desc")
+        fi
+    done
+    echo "${list[@]}"
+}
+
+# Main dialog
+while true; do
+    CHOICE=$(zenity --list \
+        --title="FenrirOS Kernel Switcher" \
+        --text="Select kernels to install. Currently installed kernels are checked.\n<b>Note: Always keep at least one kernel installed.</b>" \
+        --checklist \
+        --column="Install" \
+        --column="Package" \
+        --column="Description" \
+        --width=700 \
+        --height=350 \
+        $(build_list) \
+        2>/dev/null)
+
+    if [ $? -ne 0 ]; then
+        exit 0
+    fi
+
+    if [ -z "$CHOICE" ]; then
+        zenity --warning \
+            --title="FenrirOS Kernel Switcher" \
+            --text="Please select at least one kernel." \
+            --width=300
+        continue
+    fi
+
+    # Confirm
+    zenity --question \
+        --title="FenrirOS Kernel Switcher" \
+        --text="Apply kernel changes?\n\nSelected: $CHOICE" \
+        --width=400 \
+        2>/dev/null || exit 0
+
+    # Install selected kernels
+    IFS='|' read -ra SELECTED <<< "$CHOICE"
+    TO_INSTALL=""
+    for pkg in "${SELECTED[@]}"; do
+        TO_INSTALL="$TO_INSTALL $pkg ${pkg}-headers"
+    done
+
+    # Run pacman in terminal
+    (
+        echo "# Installing kernels..."
+        pacman -S --noconfirm $TO_INSTALL 2>&1
+        echo "# Updating GRUB..."
+        grub-mkconfig -o /boot/grub/grub.cfg 2>&1
+        echo "# Done!"
+    ) | zenity --progress \
+        --title="FenrirOS Kernel Switcher" \
+        --text="Installing kernels..." \
+        --pulsate \
+        --auto-close \
+        --width=400 \
+        2>/dev/null
+
+    zenity --info \
+        --title="FenrirOS Kernel Switcher" \
+        --text="Kernel changes applied successfully!\nPlease reboot to use the new kernel." \
+        --width=350
+    break
+done

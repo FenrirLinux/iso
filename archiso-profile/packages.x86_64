@@ -106,6 +106,8 @@ fastfetch
 rsync
 unzip
 7zip
+firefox
+zenity
 
 # --- Fonts ---
 ttf-dejavu

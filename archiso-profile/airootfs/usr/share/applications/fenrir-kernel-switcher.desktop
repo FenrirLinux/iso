@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=FenrirOS Kernel Switcher
+Comment=Switch between CachyOS kernel variants
+Exec=sudo fenrir-kernel-switcher
+Icon=application-x-executable
+Terminal=false
+Categories=System;
