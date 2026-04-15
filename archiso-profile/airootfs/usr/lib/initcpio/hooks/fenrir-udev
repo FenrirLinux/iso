@@ -12,15 +12,22 @@ run_hook() {
     udevadm trigger --action=add --type=devices
     udevadm settle
 
-    # Wait for CD-ROM device to appear (needed for live ISO)
+    # Wait for archiso device to appear (USB or CD-ROM)
     local i=0
-    while [ ! -b /dev/sr0 ] && [ $i -lt 30 ]; do
+    while [ $i -lt 60 ]; do
+        # Check for USB device with our label
+        if blkid | grep -q "FENRIR_202604"; then
+            msg ":: FenrirOS device found"
+            break
+        fi
+        # Also check for sr0 (CD-ROM) or sda/sdb (USB)
+        if [ -b /dev/sr0 ] || [ -b /dev/sda ] || [ -b /dev/sdb ]; then
+            udevadm settle
+            break
+        fi
         sleep 1
         i=$((i + 1))
     done
-    if [ -b /dev/sr0 ]; then
-        msg ":: CD-ROM device /dev/sr0 found"
-    fi
 }
 
 run_cleanuphook() {
