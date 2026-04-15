@@ -1,6 +1,5 @@
 #!/usr/bin/ash
 # FenrirOS custom udev hook for mkinitcpio
-# Uses Artix eudev - udevd at /usr/bin/udevd
 
 run_earlyhook() {
     /usr/bin/udevd --daemon --resolve-names=never
@@ -10,19 +9,12 @@ run_hook() {
     msg ":: Triggering uevents..."
     udevadm trigger --action=add --type=subsystems
     udevadm trigger --action=add --type=devices
-    udevadm settle
+    udevadm settle --timeout=10
 
-    # Wait for archiso device to appear (USB or CD-ROM)
+    # Quick check for block devices - don't wait long
     local i=0
-    while [ $i -lt 60 ]; do
-        # Check for USB device with our label
-        if blkid | grep -q "FENRIR_202604"; then
-            msg ":: FenrirOS device found"
-            break
-        fi
-        # Also check for sr0 (CD-ROM) or sda/sdb (USB)
-        if [ -b /dev/sr0 ] || [ -b /dev/sda ] || [ -b /dev/sdb ]; then
-            udevadm settle
+    while [ $i -lt 15 ]; do
+        if blkid 2>/dev/null | grep -q "FENRIR_202604"; then
             break
         fi
         sleep 1
