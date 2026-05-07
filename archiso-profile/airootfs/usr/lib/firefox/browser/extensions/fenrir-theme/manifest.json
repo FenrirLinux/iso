@@ -1,0 +1,52 @@
+{
+  "manifest_version": 2,
+  "name": "Fenrir Browser Theme",
+  "version": "1.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fenrir-theme@fenrirlinux.org"
+    }
+  },
+  "theme": {
+    "colors": {
+      "toolbar": "#1a1a1a",
+      "toolbar_text": "#f0f0f0",
+      "frame": "#111111",
+      "tab_text": "#f0f0f0",
+      "tab_line": "#e06c1a",
+      "tab_loading": "#e06c1a",
+      "tab_selected": "#1a1a1a",
+      "tab_background_text": "#888888",
+      "bookmark_text": "#f0f0f0",
+      "toolbar_field": "#2a2a2a",
+      "toolbar_field_text": "#f0f0f0",
+      "toolbar_field_border": "#e06c1a",
+      "toolbar_field_focus": "#2a2a2a",
+      "toolbar_field_text_focus": "#f0f0f0",
+      "toolbar_field_border_focus": "#e06c1a",
+      "toolbar_top_separator": "#111111",
+      "toolbar_bottom_separator": "#e06c1a",
+      "toolbar_vertical_separator": "#333333",
+      "icons": "#e06c1a",
+      "icons_attention": "#ff8c42",
+      "button_background_active": "#333333",
+      "button_background_hover": "#2a2a2a",
+      "popup": "#1a1a1a",
+      "popup_text": "#f0f0f0",
+      "popup_border": "#e06c1a",
+      "popup_highlight": "#e06c1a",
+      "popup_highlight_text": "#111111",
+      "sidebar": "#1a1a1a",
+      "sidebar_text": "#f0f0f0",
+      "sidebar_highlight": "#e06c1a",
+      "sidebar_highlight_text": "#111111",
+      "sidebar_border": "#333333",
+      "ntp_background": "#111111",
+      "ntp_text": "#f0f0f0"
+    },
+    "properties": {
+      "color_scheme": "dark",
+      "content_color_scheme": "dark"
+    }
+  }
+}
