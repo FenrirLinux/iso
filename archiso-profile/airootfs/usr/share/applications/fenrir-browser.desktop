@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=Fenrir Browser
+GenericName=Web Browser
+Comment=Fast, private web browser for FenrirOS
+Exec=firefox %u
+Icon=firefox
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;application/vnd.mozilla.xul+xml;x-scheme-handler/http;x-scheme-handler/https;
+StartupNotify=true

@@ -1,0 +1,62 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisableFirefoxAccounts": true,
+    "DisablePocket": true,
+    "DisableFormHistory": false,
+    "DisablePasswordReveal": false,
+    "DontCheckDefaultBrowser": true,
+    "NoDefaultBookmarks": true,
+    "OfferToSaveLogins": true,
+    "PasswordManagerEnabled": true,
+    "FirefoxHome": {
+      "Search": true,
+      "TopSites": false,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "SponsoredPocket": false,
+      "Snippets": false,
+      "Locked": false
+    },
+    "UserMessaging": {
+      "WhatsNew": false,
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "MoreFromMozilla": false,
+      "Locked": false
+    },
+    "Homepage": {
+      "URL": "https://fenrirlinux.org",
+      "Locked": false,
+      "StartPage": "homepage"
+    },
+    "Extensions": {
+      "Install": [
+        "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+      ],
+      "Locked": []
+    },
+    "Preferences": {
+      "media.peerconnection.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "geo.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.send_pings": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "dom.battery.enabled": {
+        "Value": false,
+        "Status": "default"
+      }
+    }
+  }
+}
