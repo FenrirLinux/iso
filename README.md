@@ -1,8 +1,8 @@
-# FenrirOS - Unchained 🐺
+# FenrirLinux - Unchained 🐺
 
 > Gaming Linux, unchained from systemd.
 
-FenrirOS is an Arch-based gaming Linux distribution built on OpenRC and elogind,
+FenrirLinux is an Arch-based gaming Linux distribution built on OpenRC and elogind,
 combining the performance of CachyOS kernels and SCX schedulers with a systemd-free
 init system — making OpenRC approachable for everyday gamers.
 
@@ -92,7 +92,7 @@ A patch is needed to use elogind's DBus session instead.
 
 ## Contributing
 
-FenrirOS is in early development. Join the pack:
+FenrirLinux is in early development. Join the pack:
 - GitHub: (coming soon)
 - Discord: (coming soon)
 - Website: fenriros.org (coming soon)
