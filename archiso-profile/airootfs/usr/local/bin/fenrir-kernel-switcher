@@ -1,100 +1,148 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ==============================================================================
 # FenrirOS Kernel Switcher
-# Allows users to switch between CachyOS kernel variants
+#
+# GUI mode (no arguments, normal user): pick which CachyOS kernels should be
+# installed. Kernels you check are installed, kernels you uncheck are removed.
+#
+# Apply mode (run as root through pkexec):
+#   fenrir-kernel-switcher --apply "<kernels to install>" "<kernels to remove>"
+# ==============================================================================
 
+set -uo pipefail
+
+TITLE="FenrirOS Kernel Switcher"
+LOG="${XDG_RUNTIME_DIR:-/tmp}/fenrir-kernel-switcher.log"
+
+# pkgbase|description. Only the ones the repos actually carry are shown.
 KERNELS=(
-    "linux-cachyos|CachyOS Default (BORE scheduler) - Recommended"
-    "linux-cachyos-lts|CachyOS LTS - Stable, long-term support"
-    "linux-cachyos-bore|CachyOS BORE - Best for low-latency gaming"
-    "linux-cachyos-lavd|CachyOS LAVD - Best for latency-sensitive workloads"
-    "linux-cachyos-rt|CachyOS RT - Real-time kernel"
+    "linux-cachyos|CachyOS default kernel (recommended)"
+    "linux-cachyos-lts|Long-term support kernel, a stable fallback"
+    "linux-cachyos-bore|BORE scheduler, tuned for desktop responsiveness"
+    "linux-cachyos-eevdf|Mainline EEVDF scheduler with CachyOS patches"
+    "linux-cachyos-rt-bore|Real-time kernel with BORE (audio production)"
+    "linux-cachyos-deckify|Handheld / Steam Deck style devices"
+    "linux-cachyos-hardened|Security-hardened kernel"
+    "linux-cachyos-server|Server-tuned kernel"
 )
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then
-    exec pkexec "$0" "$@"
+# ------------------------------------------------------------------------------
+# Apply mode (root)
+# ------------------------------------------------------------------------------
+nvidia_suffix() {
+    # Which NVIDIA module flavour the running system uses, if any.
+    if pacman -Qq 2>/dev/null | grep -q -- '-nvidia-open$'; then echo "-nvidia-open"
+    elif pacman -Qq 2>/dev/null | grep -q -- '-nvidia$'; then echo "-nvidia"
+    fi
+}
+
+apply_changes() {
+    local -a install remove pkgs=()
+    read -ra install <<< "${1:-}"
+    read -ra remove <<< "${2:-}"
+    local suffix k
+    suffix=$(nvidia_suffix)
+
+    if ((${#install[@]})); then
+        for k in "${install[@]}"; do
+            pkgs+=("$k" "${k}-headers")
+            [[ -n $suffix ]] && pkgs+=("${k}${suffix}")
+        done
+        echo "Installing: ${pkgs[*]}"
+        pacman -Syu --needed --noconfirm "${pkgs[@]}" || exit 1
+    fi
+
+    if ((${#remove[@]})); then
+        pkgs=()
+        for k in "${remove[@]}"; do
+            pkgs+=("$k")
+            pacman -Qq "${k}-headers" >/dev/null 2>&1 && pkgs+=("${k}-headers")
+            [[ -n $suffix ]] && pacman -Qq "${k}${suffix}" >/dev/null 2>&1 && pkgs+=("${k}${suffix}")
+        done
+        echo "Removing: ${pkgs[*]}"
+        pacman -Rns --noconfirm "${pkgs[@]}" || exit 1
+    fi
+
+    echo "Updating GRUB menu"
+    grub-mkconfig -o /boot/grub/grub.cfg || exit 1
+}
+
+if [[ ${1:-} == --apply ]]; then
+    [[ $EUID -eq 0 ]] || { echo "--apply must run as root" >&2; exit 1; }
+    apply_changes "${2:-}" "${3:-}"
+    exit $?
 fi
 
-# Get currently installed kernels
-get_installed() {
-    pacman -Qq 2>/dev/null | grep "^linux-cachyos" | tr '\n' ' '
-}
+# ------------------------------------------------------------------------------
+# GUI mode (user)
+# ------------------------------------------------------------------------------
+installed() { pacman -Qq "$1" >/dev/null 2>&1; }
 
-# Build zenity list
-build_list() {
-    local installed
-    installed=$(get_installed)
-    local list=()
+main() {
+    local available entry pkg desc
+    available=$(pacman -Slq 2>/dev/null)
+
+    local -a rows=() known=()
     for entry in "${KERNELS[@]}"; do
-        local pkg="${entry%%|*}"
-        local desc="${entry##*|}"
-        if echo "$installed" | grep -qw "$pkg"; then
-            list+=(TRUE "$pkg" "$desc (installed)")
+        pkg=${entry%%|*}
+        desc=${entry#*|}
+        if installed "$pkg"; then
+            rows+=(TRUE "$pkg" "$desc (installed)")
+        elif grep -qx -- "$pkg" <<< "$available"; then
+            rows+=(FALSE "$pkg" "$desc")
         else
-            list+=(FALSE "$pkg" "$desc")
+            continue
+        fi
+        known+=("$pkg")
+    done
+
+    local choice
+    while true; do
+        choice=$(zenity --list --checklist --title="$TITLE" \
+            --text="Checked kernels will be installed, unchecked ones removed.\n<b>At least one kernel must stay installed.</b>" \
+            --column="Installed" --column="Package" --column="Description" \
+            --separator=" " --width=760 --height=400 \
+            "${rows[@]}" 2>/dev/null) || exit 0
+        [[ -n $choice ]] && break
+        zenity --warning --title="$TITLE" --width=300 --text="Select at least one kernel."
+    done
+
+    local -a to_install=() to_remove=()
+    for pkg in "${known[@]}"; do
+        if tr ' ' '\n' <<< "$choice" | grep -qx -- "$pkg"; then
+            installed "$pkg" || to_install+=("$pkg")
+        else
+            installed "$pkg" && to_remove+=("$pkg")
         fi
     done
-    echo "${list[@]}"
-}
 
-# Main dialog
-while true; do
-    CHOICE=$(zenity --list \
-        --title="FenrirOS Kernel Switcher" \
-        --text="Select kernels to install. Currently installed kernels are checked.\n<b>Note: Always keep at least one kernel installed.</b>" \
-        --checklist \
-        --column="Install" \
-        --column="Package" \
-        --column="Description" \
-        --width=700 \
-        --height=350 \
-        $(build_list) \
-        2>/dev/null)
-
-    if [ $? -ne 0 ]; then
+    if ((${#to_install[@]} == 0 && ${#to_remove[@]} == 0)); then
+        zenity --info --title="$TITLE" --width=300 --text="Nothing to change."
         exit 0
     fi
 
-    if [ -z "$CHOICE" ]; then
-        zenity --warning \
-            --title="FenrirOS Kernel Switcher" \
-            --text="Please select at least one kernel." \
-            --width=300
-        continue
-    fi
-
-    # Confirm
-    zenity --question \
-        --title="FenrirOS Kernel Switcher" \
-        --text="Apply kernel changes?\n\nSelected: $CHOICE" \
-        --width=400 \
+    zenity --question --title="$TITLE" --width=450 \
+        --text="Install: ${to_install[*]:-none}\nRemove: ${to_remove[*]:-none}\n\nApply these changes?" \
         2>/dev/null || exit 0
 
-    # Install selected kernels
-    IFS='|' read -ra SELECTED <<< "$CHOICE"
-    TO_INSTALL=""
-    for pkg in "${SELECTED[@]}"; do
-        TO_INSTALL="$TO_INSTALL $pkg ${pkg}-headers"
-    done
-
-    # Run pacman in terminal
+    : > "$LOG"
+    pkexec "$0" --apply "${to_install[*]}" "${to_remove[*]}" >"$LOG" 2>&1 &
+    local pid=$!
     (
-        echo "# Installing kernels..."
-        pacman -S --noconfirm $TO_INSTALL 2>&1
-        echo "# Updating GRUB..."
-        grub-mkconfig -o /boot/grub/grub.cfg 2>&1
-        echo "# Done!"
-    ) | zenity --progress \
-        --title="FenrirOS Kernel Switcher" \
-        --text="Installing kernels..." \
-        --pulsate \
-        --auto-close \
-        --width=400 \
-        2>/dev/null
+        while kill -0 "$pid" 2>/dev/null; do
+            echo "# $(tail -n1 "$LOG" 2>/dev/null | cut -c1-80)"
+            sleep 1
+        done
+    ) | zenity --progress --title="$TITLE" --text="Applying kernel changes..." \
+        --pulsate --auto-close --no-cancel --width=500 2>/dev/null
 
-    zenity --info \
-        --title="FenrirOS Kernel Switcher" \
-        --text="Kernel changes applied successfully!\nPlease reboot to use the new kernel." \
-        --width=350
-    break
-done
+    if wait "$pid"; then
+        zenity --info --title="$TITLE" --width=350 \
+            --text="Kernel changes applied.\nReboot and pick the kernel from the GRUB menu."
+    else
+        zenity --text-info --title="$TITLE - failed" --filename="$LOG" \
+            --width=700 --height=400 2>/dev/null
+    fi
+}
+
+main

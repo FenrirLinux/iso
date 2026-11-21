@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=PipeWire
+Comment=Start PipeWire, WirePlumber and the PulseAudio bridge
+Exec=/usr/local/bin/fenrir-pipewire-launcher
+NoDisplay=true
+X-KDE-autostart-phase=1
+X-GNOME-Autostart-Phase=Initialization

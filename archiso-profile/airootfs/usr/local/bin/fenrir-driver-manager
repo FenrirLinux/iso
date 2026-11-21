@@ -1,138 +1,115 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ==============================================================================
 # FenrirOS Driver Manager
-# Detects GPU and manages drivers
+#
+# Runs as the normal user (so zenity can reach the Wayland/X session) and
+# only uses pkexec for the steps that actually need root.
+# ==============================================================================
 
-if [ "$EUID" -ne 0 ]; then
-    exec pkexec "$0" "$@"
-fi
+set -uo pipefail
 
-detect_gpu() {
-    lspci | grep -E "VGA|3D|Display"
-}
+TITLE="FenrirOS Driver Manager"
+LOG="${XDG_RUNTIME_DIR:-/tmp}/fenrir-driver-manager.log"
 
-detect_nvidia() {
-    lspci | grep -i nvidia | head -1
-}
+gpus()          { lspci 2>/dev/null | grep -E 'VGA|3D|Display'; }
+has_nvidia()    { lspci -d 10de: 2>/dev/null | grep -qE 'VGA|3D|Display'; }
+has_amd()       { lspci -d 1002: 2>/dev/null | grep -qE 'VGA|3D|Display'; }
+has_intel()     { lspci -d 8086: 2>/dev/null | grep -qE 'VGA|3D|Display'; }
 
-detect_amd() {
-    lspci | grep -i "amd\|radeon\|advanced micro" | grep -iE "VGA|3D|Display" | head -1
-}
-
-detect_intel() {
-    lspci | grep -i intel | grep -iE "VGA|3D|Display" | head -1
-}
-
-get_nvidia_drivers() {
-    echo "nvidia-open|NVIDIA Open (Recommended for RTX cards)|nvidia-open nvidia-open-dkms"
-    echo "nvidia-dkms|NVIDIA Proprietary DKMS|nvidia-dkms"
-    echo "nouveau|Nouveau Open Source (no 3D acceleration)|xf86-video-nouveau"
-}
-
-show_main() {
-    local gpu_info
-    gpu_info=$(detect_gpu)
-
-    local nvidia amd intel
-    nvidia=$(detect_nvidia)
-    amd=$(detect_amd)
-    intel=$(detect_intel)
-
-    local msg="<b>Detected GPU(s):</b>\n$gpu_info\n\n"
-
-    if [ -n "$nvidia" ]; then
-        msg+="<b>NVIDIA GPU detected:</b> $nvidia\n"
+# Run a command as root behind a progress bar. Returns the command's status
+# and shows the log on failure instead of always claiming success.
+run_root() {
+    local text=$1; shift
+    : > "$LOG"
+    pkexec "$@" >"$LOG" 2>&1 &
+    local pid=$!
+    (
+        while kill -0 "$pid" 2>/dev/null; do
+            echo "# $(tail -n1 "$LOG" 2>/dev/null | cut -c1-80)"
+            sleep 1
+        done
+    ) | zenity --progress --title="$TITLE" --text="$text" --pulsate \
+        --auto-close --no-cancel --width=500 2>/dev/null
+    wait "$pid"
+    local rc=$?
+    if ((rc != 0 && rc != 2)); then
+        zenity --text-info --title="$TITLE - failed" --filename="$LOG" \
+            --width=700 --height=400 2>/dev/null
     fi
-    if [ -n "$amd" ]; then
-        msg+="<b>AMD GPU detected:</b> $amd\n"
-    fi
-    if [ -n "$intel" ]; then
-        msg+="<b>Intel GPU detected:</b> $intel\n"
-    fi
-
-    ACTION=$(zenity --list \
-        --title="FenrirOS Driver Manager" \
-        --text="$msg\nWhat would you like to do?" \
-        --column="Action" \
-        --width=600 \
-        --height=300 \
-        "Manage NVIDIA Drivers" \
-        "Manage AMD Drivers" \
-        "Manage Intel Drivers" \
-        2>/dev/null)
-
-    case "$ACTION" in
-        "Manage NVIDIA Drivers") manage_nvidia ;;
-        "Manage AMD Drivers") manage_amd ;;
-        "Manage Intel Drivers") manage_intel ;;
-    esac
+    return "$rc"
 }
 
 manage_nvidia() {
-    if [ -z "$(detect_nvidia)" ]; then
-        zenity --warning --title="No NVIDIA GPU" \
-            --text="No NVIDIA GPU detected on this system." --width=300
+    if ! has_nvidia; then
+        zenity --warning --title="$TITLE" --text="No NVIDIA GPU detected." --width=300
         return
     fi
 
-    DRIVER=$(zenity --list \
-        --title="FenrirOS - NVIDIA Driver Manager" \
-        --text="Select NVIDIA driver to install:" \
-        --column="Driver" \
-        --column="Description" \
-        --width=600 --height=300 \
-        "nvidia-open" "NVIDIA Open Kernel Module (RTX 20xx and newer - Recommended)" \
-        "nvidia-open-dkms" "NVIDIA Open DKMS (builds for any kernel)" \
-        "nouveau" "Nouveau Open Source Driver (basic display only)" \
+    local choice
+    choice=$(zenity --list --title="$TITLE - NVIDIA" \
+        --text="Choose a driver. Drivers are prebuilt for your CachyOS kernels." \
+        --column="Option" --column="Description" --width=650 --height=280 \
+        "auto"   "Recommended driver for this GPU" \
+        "open"   "NVIDIA open kernel modules (GTX 16xx / RTX 20xx and newer)" \
+        "closed" "NVIDIA proprietary kernel modules" \
         2>/dev/null) || return
 
-    zenity --question \
-        --title="Install Driver" \
-        --text="Install $DRIVER?" --width=300 || return
+    local args=()
+    [[ $choice == open ]] && args=(--force-open)
+    [[ $choice == closed ]] && args=(--force-closed)
 
-    pacman -S --noconfirm "$DRIVER" 2>&1 | zenity --progress \
-        --title="Installing $DRIVER..." \
-        --pulsate --auto-close --width=400
+    zenity --question --title="$TITLE" --width=400 \
+        --text="This updates the system and installs the NVIDIA driver.\nAn internet connection is required. Continue?" || return
 
-    zenity --info --title="Done" \
-        --text="$DRIVER installed. Please reboot." --width=300
+    run_root "Installing NVIDIA driver..." /usr/local/bin/fenrir-nvidia-setup "${args[@]}"
+    case $? in
+        0) zenity --info --title="$TITLE" --width=300 --text="NVIDIA driver installed. Please reboot." ;;
+        2) zenity --warning --title="$TITLE" --width=450 \
+               --text="No supported NVIDIA driver package was found for this GPU.\nThe open-source nouveau driver will keep being used." ;;
+    esac
 }
 
 manage_amd() {
-    if [ -z "$(detect_amd)" ]; then
-        zenity --warning --title="No AMD GPU" \
-            --text="No AMD GPU detected on this system." --width=300
+    if ! has_amd; then
+        zenity --warning --title="$TITLE" --text="No AMD GPU detected." --width=300
         return
     fi
-
-    zenity --info \
-        --title="FenrirOS - AMD Driver Manager" \
-        --text="AMD GPUs use the <b>amdgpu</b> open source driver which is already included in the kernel.\n\nFor Vulkan support, <b>vulkan-radeon</b> and <b>lib32-vulkan-radeon</b> are already installed.\n\nNo additional drivers needed!" \
-        --width=450
+    zenity --info --title="$TITLE - AMD" --width=450 \
+        --text="AMD GPUs use the <b>amdgpu</b> driver built into the kernel, and <b>vulkan-radeon</b> (64- and 32-bit) is already installed.\n\nNo extra drivers are needed."
 }
 
 manage_intel() {
-    if [ -z "$(detect_intel)" ]; then
-        zenity --warning --title="No Intel GPU" \
-            --text="No Intel GPU detected on this system." --width=300
+    if ! has_intel; then
+        zenity --warning --title="$TITLE" --text="No Intel GPU detected." --width=300
         return
     fi
-
-    DRIVER=$(zenity --list \
-        --title="FenrirOS - Intel Driver Manager" \
-        --text="Select Intel driver:" \
-        --column="Driver" \
-        --column="Description" \
-        --width=600 --height=250 \
-        "vulkan-intel" "Intel Vulkan Driver (already installed)" \
-        "intel-media-driver" "Intel Media Driver (hardware video acceleration)" \
-        2>/dev/null) || return
-
-    pacman -S --noconfirm "$DRIVER" 2>&1 | zenity --progress \
-        --title="Installing $DRIVER..." \
-        --pulsate --auto-close --width=400
-
-    zenity --info --title="Done" \
-        --text="$DRIVER installed successfully." --width=300
+    if pacman -Qq intel-media-driver >/dev/null 2>&1; then
+        zenity --info --title="$TITLE - Intel" --width=400 \
+            --text="Vulkan and hardware video decoding (intel-media-driver) are already installed."
+        return
+    fi
+    zenity --question --title="$TITLE - Intel" --width=450 \
+        --text="Vulkan (vulkan-intel) is already installed.\n\nInstall <b>intel-media-driver</b> for hardware video decoding?" || return
+    run_root "Installing intel-media-driver..." pacman -Syu --needed --noconfirm intel-media-driver \
+        && zenity --info --title="$TITLE" --width=300 --text="intel-media-driver installed."
 }
 
-show_main
+main() {
+    local gpu_list action
+    gpu_list=$(gpus)
+    [[ -n $gpu_list ]] || gpu_list="(none found)"
+
+    action=$(zenity --list --title="$TITLE" \
+        --text="<b>Detected GPU(s):</b>\n${gpu_list}\n\nWhat would you like to do?" \
+        --column="Action" --width=650 --height=320 \
+        "Manage NVIDIA drivers" "Manage AMD drivers" "Manage Intel drivers" \
+        2>/dev/null) || exit 0
+
+    case "$action" in
+        "Manage NVIDIA drivers") manage_nvidia ;;
+        "Manage AMD drivers")    manage_amd ;;
+        "Manage Intel drivers")  manage_intel ;;
+    esac
+}
+
+main

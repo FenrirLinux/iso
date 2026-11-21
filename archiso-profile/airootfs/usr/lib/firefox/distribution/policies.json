@@ -32,18 +32,7 @@
       "Locked": false,
       "StartPage": "homepage"
     },
-    "Extensions": {
-      "Install": [
-        "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi",
-        "fenrir-theme@fenrirlinux.org"
-      ],
-      "Locked": []
-    },
     "Preferences": {
-      "media.peerconnection.enabled": {
-        "Value": false,
-        "Status": "default"
-      },
       "geo.enabled": {
         "Value": false,
         "Status": "default"
@@ -55,6 +44,16 @@
       "dom.battery.enabled": {
         "Value": false,
         "Status": "default"
+      }
+    },
+    "ExtensionSettings": {
+      "uBlock0@raymondhill.net": {
+        "installation_mode": "normal_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+      },
+      "fenrir-theme@fenrirlinux.org": {
+        "installation_mode": "normal_installed",
+        "install_url": "file:///usr/lib/firefox/distribution/extensions/fenrir-theme@fenrirlinux.org.xpi"
       }
     }
   }

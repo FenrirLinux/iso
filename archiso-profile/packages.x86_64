@@ -113,6 +113,7 @@ exfatprogs
 # --- System utilities ---
 sudo
 polkit
+polkit-kde-agent
 pciutils
 usbutils
 acpid

@@ -10,3 +10,9 @@ Thumbs.db
 
 # Cloudflare
 .wrangler/
+
+# Build output
+/work/
+/out/
+# Copied in by build.sh
+archiso-profile/airootfs/usr/lib/firefox/distribution/extensions/
