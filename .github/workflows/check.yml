@@ -1,0 +1,62 @@
+name: Check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -S warning \
+            build.sh \
+            archiso-profile/profiledef.sh \
+            archiso-profile/airootfs/usr/local/bin/* \
+            archiso-profile/airootfs/etc/local.d/*.start
+          # ash/openrc-run scripts: syntax only
+          for f in archiso-profile/airootfs/usr/lib/initcpio/hooks/* \
+                   archiso-profile/airootfs/etc/init.d/*; do
+            sh -n "$f"
+          done
+
+      - name: Validate YAML and JSON
+        run: |
+          python3 - <<'PY'
+          import glob, json, yaml
+          for f in glob.glob("archiso-profile/airootfs/etc/calamares/**/*.conf", recursive=True):
+              yaml.safe_load(open(f))
+          for f in glob.glob("archiso-profile/**/*.json", recursive=True) + glob.glob("assets/**/*.json", recursive=True):
+              json.load(open(f))
+          print("ok")
+          PY
+
+      - name: Boot configs use the label template
+        run: |
+          ! grep -rnE 'archisolabel=FENRIR_[0-9]' archiso-profile/
+
+  build:
+    # Full ISO build. Manual only (Actions > Check > Run workflow): it takes a
+    # while and downloads a few GB of packages.
+    if: github.event_name == 'workflow_dispatch'
+    needs: lint
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install archiso
+        run: pacman -Syu --noconfirm archiso
+      - name: Build
+        run: ./build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fenriros-iso
+          path: out/*.iso
+          retention-days: 7
