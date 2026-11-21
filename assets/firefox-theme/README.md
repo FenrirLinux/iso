@@ -11,6 +11,6 @@ To update the theme:
 3. Save the signed file here as `fenrir-theme-signed.xpi`.
 
 `build.sh` copies `fenrir-theme-signed.xpi` into the ISO as
-`/usr/lib/firefox/distribution/extensions/fenrir-theme@fenrirlinux.org.xpi`,
+`/usr/lib/firefox/distribution/extensions/fenrir-theme@fenrirlinux.org.xpi` on installed systems,
 where the Firefox policy in `policies.json` installs it from. Without a signed
 file the ISO still builds; Firefox just keeps its default theme.

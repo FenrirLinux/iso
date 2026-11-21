@@ -1,8 +1,0 @@
-#!/bin/sh
-# FenrirOS live ISO: create the pacman keyring on first boot so the driver
-# manager and kernel switcher can install packages. The installer removes
-# this file; installed systems get their keyring set up during install.
-if [ ! -s /etc/pacman.d/gnupg/pubring.gpg ] && [ ! -s /etc/pacman.d/gnupg/pubring.kbx ]; then
-    pacman-key --init >/dev/null 2>&1
-    pacman-key --populate artix archlinux cachyos >/dev/null 2>&1
-fi

@@ -7,7 +7,7 @@
 # has to be compiled with DKMS.
 #
 # Usage: fenrir-nvidia-setup [--no-rebuild] [--force-open|--force-closed]
-#   --no-rebuild    don't run mkinitcpio afterwards (the installer does it)
+#   --no-rebuild    don't run mkinitcpio afterwards (fenrir-install does it)
 #
 # Exit codes: 0 = installed or nothing to do, 1 = failed, 2 = unsupported GPU
 # Needs root and a network connection.

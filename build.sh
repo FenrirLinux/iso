@@ -120,7 +120,7 @@ prepare_profile() {
     local xpi=$REPO_DIR/assets/firefox-theme/fenrir-theme-signed.xpi
     if [[ -f $xpi ]]; then
         install -Dm644 "$xpi" \
-            "$PROFILE/airootfs/usr/lib/firefox/distribution/extensions/fenrir-theme@fenrirlinux.org.xpi"
+            "$PROFILE/airootfs/usr/share/fenrir/rootfs/usr/lib/firefox/distribution/extensions/fenrir-theme@fenrirlinux.org.xpi"
     else
         warn "no signed Firefox theme found; Fenrir Browser will use the default theme"
     fi

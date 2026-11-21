@@ -6,6 +6,9 @@ FenrirLinux (FenrirOS) is a gaming distribution built on **Artix Linux** (OpenRC
 elogind) with the **CachyOS** kernel and sched_ext schedulers. The goal is to make a
 systemd-free system approachable for everyday gamers.
 
+The ISO works like the Arch ISO: it boots to a console, you get online and run
+**`fenrir-install`**, a guided installer that installs a fresh system from the repos.
+
 ---
 
 ## Tech stack
@@ -20,32 +23,54 @@ systemd-free system approachable for everyday gamers.
 | Audio       | PipeWire + WirePlumber         | Started per session by `fenrir-pipewire-launcher` |
 | Desktop     | KDE Plasma 6 (Wayland)         | SDDM |
 | Gaming      | Steam, Lutris, Wine, gamemode, MangoHud | |
-| Installer   | Calamares + `fenrir-postinstall` | UEFI and BIOS |
+
+## Installing
+
+1. Boot the ISO (UEFI or BIOS, USB stick or Ventoy). You're logged in as root.
+2. Get online: Ethernet connects by itself, for Wi-Fi run `nmtui`.
+3. Optional: change the keyboard layout, e.g. `loadkeys de`.
+4. Run `fenrir-install` and answer the questions:
+   - **disk**: pick a disk to erase, or partition it yourself, mount it at `/mnt`
+     (EFI partition at `/mnt/boot/efi`) and pick "manual"
+   - **filesystem**: btrfs (subvolumes `@`, `@home`, `@swap`, zstd compression) or ext4
+   - **swap file** size
+   - **profile**: `desktop` (KDE Plasma + gaming) or `minimal` (console only)
+   - hostname, user and password, time zone, locale, keyboard layout
+5. Type `ERASE` to confirm, wait for the download, then reboot.
+
+NVIDIA GPUs are detected and get CachyOS's prebuilt driver automatically. Root
+login is disabled; your user is an admin through `sudo`.
+
+For repeat installs (VMs, testing), put the answers in a file and run
+`fenrir-install -c answers.conf`. See `fenrir-install -h` for the variables.
+Passwords are always asked for. The full log ends up in
+`/var/log/fenrir-install.log` on the new system.
 
 ## Repository layout
 
 ```
-archiso-profile/              archiso profile (this is what gets built)
-├── profiledef.sh             ISO metadata, boot modes, file permissions
-├── pacman.conf               repos used to build the ISO
-├── packages.x86_64           packages on the ISO (and installed systems)
-├── grub/                     UEFI boot menu + loopback.cfg (Ventoy/GRUB ISO boot)
-├── syslinux/                 BIOS boot menu
-└── airootfs/                 files copied over the root filesystem
-    ├── etc/calamares/        installer settings and branding config
-    ├── etc/mkinitcpio.*      live-ISO-only initramfs preset
-    ├── etc/init.d/scx        OpenRC service for sched_ext schedulers
-    └── usr/local/bin/
-        ├── fenrir-postinstall       turns the copied live system into an install
-        ├── fenrir-nvidia-setup      NVIDIA driver install (CachyOS prebuilt modules)
-        ├── fenrir-driver-manager    GPU driver GUI
-        ├── fenrir-kernel-switcher   CachyOS kernel GUI
-        ├── fenrir-pipewire-launcher starts PipeWire for the session
-        └── fenrir-os-release        re-applies branding (run by a pacman hook)
-assets/                       artwork and the Fenrir Browser theme source
-build.sh                      build script
-index.html                    fenrirlinux.org landing page
+archiso-profile/                 the live ISO (console only)
+├── profiledef.sh                ISO metadata, boot modes, file permissions
+├── pacman.conf                  repos used to build the ISO
+├── packages.x86_64              packages on the live ISO
+├── grub/ syslinux/              boot menus (+ loopback.cfg for Ventoy/GRUB ISO boot)
+└── airootfs/                    files on the live ISO
+    ├── usr/local/bin/fenrir-install     the installer
+    └── usr/share/fenrir/
+        ├── packages/base.txt            installed on every system
+        ├── packages/desktop.txt         added for the desktop profile
+        └── rootfs/                      copied onto every installed system:
+            ├── usr/local/bin/           driver manager, kernel switcher,
+            │                            NVIDIA setup, PipeWire launcher
+            ├── etc/init.d/scx           sched_ext service
+            └── usr/lib/firefox/         Fenrir Browser policies and defaults
+assets/                          artwork and the Fenrir Browser theme source
+build.sh                         build script
+index.html                       fenrirlinux.org landing page
 ```
+
+To change what gets installed, edit the package lists or drop files into
+`rootfs/`. No installer code changes needed.
 
 ## Building the ISO
 
@@ -62,28 +87,12 @@ CachyOS keys, so packages are signature-checked without changing your host's
 keyring. You can also run a full build in GitHub Actions: **Actions → Check → Run
 workflow**.
 
-## How installing works
-
-Calamares copies the live system to disk, then runs
-`/usr/local/bin/fenrir-postinstall` inside it. That script:
-
-1. removes live-only config (passwordless sudo, autologin, archiso initramfs, Calamares)
-2. creates a new machine-id and pacman keyring, locks root (use `sudo`)
-3. installs each kernel to `/boot` with a normal mkinitcpio preset, so kernel
-   updates keep working
-4. installs NVIDIA drivers if an NVIDIA GPU is found (needs internet)
-5. enables the OpenRC services and gaming sysctl tweaks
-6. installs GRUB for UEFI (plus the fallback `EFI/BOOT/BOOTX64.EFI`) or BIOS
-
-Then Calamares creates your user. The full installer log is saved to
-`/var/log/installation.log` on the new system.
-
 ## Roadmap
 
 - [x] v0.1: Bootable ISO with OpenRC + elogind + KDE
 - [ ] v0.2: Steam + full gaming stack validated
-- [ ] v0.3: Calamares installer validated on UEFI and BIOS hardware
-- [ ] v0.4: Custom FenrirOS repo for our own packages
+- [ ] v0.3: `fenrir-install` validated on UEFI and BIOS hardware
+- [ ] v0.4: Custom FenrirOS repo (ship `rootfs/` as a `fenrir-base` package)
 - [ ] v1.0: Stable release, DistroWatch listing
 
 ## Links

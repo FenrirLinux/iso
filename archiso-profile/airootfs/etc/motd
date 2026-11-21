@@ -1,0 +1,12 @@
+
+  FenrirOS live environment
+  ---------------------------------------------------------------
+  1. Get online
+       Ethernet connects by itself. For Wi-Fi run:   nmtui
+  2. (optional) Change the keyboard layout, e.g.:    loadkeys de
+  3. Install FenrirOS:                               fenrir-install
+
+  Manual partitioning: mount your root at /mnt (and the EFI system
+  partition at /mnt/boot/efi), then pick "use what's mounted at
+  /mnt" in fenrir-install.
+

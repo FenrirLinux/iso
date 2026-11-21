@@ -1,0 +1,69 @@
+# FenrirOS - installed on every system by fenrir-install.
+# One package per line; '#' starts a comment.
+
+# --- Base ---
+base
+base-devel
+openrc
+elogind-openrc
+dbus-openrc
+linux-cachyos
+linux-cachyos-headers
+linux-firmware
+amd-ucode
+intel-ucode
+mkinitcpio
+
+# --- Boot ---
+grub
+efibootmgr
+os-prober
+
+# --- Repos & keyrings ---
+artix-keyring
+artix-mirrorlist
+artix-archlinux-support
+cachyos-keyring
+cachyos-mirrorlist
+
+# --- Networking ---
+networkmanager
+networkmanager-openrc
+wpa_supplicant
+dhcpcd
+openssh
+openssh-openrc
+
+# --- System services ---
+chrony
+chrony-openrc
+cronie
+cronie-openrc
+acpid
+acpid-openrc
+scx-scheds
+
+# --- Filesystems ---
+btrfs-progs
+dosfstools
+e2fsprogs
+xfsprogs
+ntfs-3g
+exfatprogs
+
+# --- Tools ---
+sudo
+pciutils
+usbutils
+man-db
+bash-completion
+nano
+vim
+git
+curl
+wget
+rsync
+unzip
+7zip
+htop
+fastfetch

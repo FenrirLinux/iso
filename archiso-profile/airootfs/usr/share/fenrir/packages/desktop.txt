@@ -1,0 +1,71 @@
+# FenrirOS - KDE Plasma gaming desktop, added on top of base.txt
+# when "desktop" is chosen in fenrir-install.
+
+# --- Audio (started per session by fenrir-pipewire-launcher) ---
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+wireplumber
+
+# --- Bluetooth ---
+bluez
+bluez-utils
+bluez-openrc
+
+# --- Graphics (NVIDIA is added by fenrir-nvidia-setup when detected) ---
+mesa
+vulkan-radeon
+vulkan-intel
+lib32-mesa
+lib32-vulkan-radeon
+lib32-vulkan-intel
+xorg-server
+wayland
+
+# --- KDE Plasma ---
+plasma-desktop
+plasma-workspace
+plasma-pa
+plasma-nm
+kscreen
+powerdevil
+bluedevil
+systemsettings
+kinfocenter
+kde-gtk-config
+breeze-gtk
+xdg-desktop-portal-kde
+polkit
+polkit-kde-agent
+sddm
+sddm-openrc
+sddm-kcm
+network-manager-applet
+dolphin
+konsole
+ark
+spectacle
+
+# --- Gaming ---
+steam
+lib32-glibc
+lib32-gcc-libs
+gamemode
+lib32-gamemode
+mangohud
+lib32-mangohud
+lutris
+wine-staging
+winetricks
+
+# --- Apps ---
+firefox
+zenity
+
+# --- Fonts ---
+ttf-dejavu
+ttf-liberation
+noto-fonts
+noto-fonts-emoji
+ttf-nerd-fonts-symbols

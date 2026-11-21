@@ -18,19 +18,17 @@ jobs:
             build.sh \
             archiso-profile/profiledef.sh \
             archiso-profile/airootfs/usr/local/bin/* \
-            archiso-profile/airootfs/etc/local.d/*.start
+            archiso-profile/airootfs/usr/share/fenrir/rootfs/usr/local/bin/*
           # ash/openrc-run scripts: syntax only
           for f in archiso-profile/airootfs/usr/lib/initcpio/hooks/* \
-                   archiso-profile/airootfs/etc/init.d/*; do
+                   archiso-profile/airootfs/usr/share/fenrir/rootfs/etc/init.d/*; do
             sh -n "$f"
           done
 
-      - name: Validate YAML and JSON
+      - name: Validate JSON
         run: |
           python3 - <<'PY'
-          import glob, json, yaml
-          for f in glob.glob("archiso-profile/airootfs/etc/calamares/**/*.conf", recursive=True):
-              yaml.safe_load(open(f))
+          import glob, json
           for f in glob.glob("archiso-profile/**/*.json", recursive=True) + glob.glob("assets/**/*.json", recursive=True):
               json.load(open(f))
           print("ok")

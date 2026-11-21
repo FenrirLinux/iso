@@ -1,148 +1,62 @@
 # ==============================================================================
-# FenrirOS - packages.x86_64
-# Artix (OpenRC + elogind) base, CachyOS kernel and schedulers
+# FenrirOS - live ISO packages (console only, like the Arch ISO)
+# What gets installed onto disk is in airootfs/usr/share/fenrir/packages/.
 # ==============================================================================
 
-# --- Base system ---
+# --- Base / kernel ---
 base
-base-devel
 linux-cachyos
-linux-cachyos-headers
 linux-firmware
 linux-firmware-whence
 amd-ucode
 intel-ucode
 mkinitcpio
 mkinitcpio-archiso
+openrc
+dbus
+dbus-openrc
 
-# --- Repos & keyrings (so installed systems can update everything) ---
+# --- Boot the ISO ---
+grub
+efibootmgr
+syslinux
+mtools
+
+# --- Repos & keyrings ---
 artix-keyring
 artix-mirrorlist
 artix-archlinux-support
 cachyos-keyring
 cachyos-mirrorlist
 
-# --- OpenRC / session ---
-openrc
-elogind
-elogind-openrc
-dbus
-dbus-openrc
-
-# --- Bootloader & live boot ---
-grub
-efibootmgr
-os-prober
-syslinux
-mtools
-squashfs-tools
+# --- Installer ---
+artools-base
+gptfdisk
+parted
+dosfstools
+e2fsprogs
+btrfs-progs
+xfsprogs
+ntfs-3g
+exfatprogs
 
 # --- Networking ---
 networkmanager
 networkmanager-openrc
-network-manager-applet
 wpa_supplicant
 dhcpcd
-
-# --- Bluetooth ---
-bluez
-bluez-utils
-bluez-openrc
-
-# --- Audio (started per user by fenrir-pipewire-launcher) ---
-pipewire
-pipewire-alsa
-pipewire-jack
-pipewire-pulse
-wireplumber
-
-# --- Display ---
-xorg-server
-xorg-xinit
-wayland
-
-# --- GPU drivers (NVIDIA is installed per machine by fenrir-nvidia-setup) ---
-mesa
-vulkan-radeon
-vulkan-intel
-lib32-mesa
-lib32-vulkan-radeon
-lib32-vulkan-intel
-
-# --- KDE Plasma ---
-plasma-desktop
-plasma-workspace
-plasma-pa
-plasma-nm
-kscreen
-powerdevil
-bluedevil
-systemsettings
-kinfocenter
-kde-gtk-config
-breeze-gtk
-xdg-desktop-portal-kde
-sddm
-sddm-openrc
-sddm-kcm
-dolphin
-konsole
-ark
-spectacle
-
-# --- Gaming ---
-steam
-lib32-glibc
-lib32-gcc-libs
-gamemode
-lib32-gamemode
-mangohud
-lib32-mangohud
-lutris
-wine-staging
-winetricks
-scx-scheds
-
-# --- Filesystems ---
-btrfs-progs
-dosfstools
-e2fsprogs
-ntfs-3g
-exfatprogs
-
-# --- System utilities ---
-sudo
-polkit
-polkit-kde-agent
-pciutils
-usbutils
-acpid
-acpid-openrc
-cronie
-cronie-openrc
 openssh
 openssh-openrc
-calamares
 
-# --- CLI utilities ---
-bash
-zsh
-git
-curl
-wget
+# --- Tools ---
+pciutils
+usbutils
 nano
 vim
-htop
-fastfetch
+less
+curl
+wget
 rsync
-unzip
-7zip
-zenity
-firefox
-
-# --- Fonts ---
-ttf-dejavu
-ttf-liberation
-noto-fonts
-noto-fonts-emoji
-ttf-nerd-fonts-symbols
+git
+bash-completion
+terminus-font
