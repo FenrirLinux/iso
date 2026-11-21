@@ -1,0 +1,7 @@
+#!/bin/sh
+# FenrirOS - apply FenrirOS branding to os-release.
+# Run by a pacman hook whenever a package reinstalls os-release, and once
+# by the installer.
+set -e
+install -Dm644 /usr/share/fenrir/os-release /usr/lib/os-release
+ln -sf ../usr/lib/os-release /etc/os-release

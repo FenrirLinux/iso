@@ -1,0 +1,2 @@
+# FenrirOS live session only - removed by the installer.
+%wheel ALL=(ALL:ALL) NOPASSWD: ALL

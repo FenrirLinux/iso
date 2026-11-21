@@ -1,0 +1,11 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/os-release
+Target = etc/os-release
+
+[Action]
+Description = Applying FenrirOS branding to os-release...
+When = PostTransaction
+Exec = /usr/local/bin/fenrir-os-release

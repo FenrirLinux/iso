@@ -1,0 +1,8 @@
+# FenrirOS - live ISO preset for linux-cachyos.
+# Shipped in airootfs so the kernel package doesn't generate its default
+# preset during the build. The installer replaces this file.
+PRESETS=('archiso')
+
+ALL_kver='/boot/vmlinuz-linux-cachyos'
+archiso_config='/etc/mkinitcpio.conf.d/archiso.conf'
+archiso_image='/boot/initramfs-linux-cachyos.img'

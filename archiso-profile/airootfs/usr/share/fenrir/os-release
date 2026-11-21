@@ -1,7 +1,7 @@
 NAME="FenrirOS"
 PRETTY_NAME="FenrirOS 0.1 Midgard"
 ID=fenriros
-ID_LIKE=artix
+ID_LIKE="artix arch"
 BUILD_ID=rolling
 ANSI_COLOR="1;31"
 HOME_URL="https://fenrirlinux.org"
