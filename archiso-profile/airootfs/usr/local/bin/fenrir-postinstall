@@ -1,0 +1,286 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# FenrirOS post-install
+#
+# Run by Calamares (shellprocess, chrooted into the new system) right after
+# the live image has been copied to disk. Turns a copy of the live system
+# into a proper installed system:
+#
+#   1. removes live-session-only config (passwordless sudo, autologin, ...)
+#   2. resets identity (machine-id, pacman keyring, os-release, root lock)
+#   3. removes live-only packages
+#   4. installs kernels to /boot and writes normal mkinitcpio presets
+#   5. installs NVIDIA drivers if an NVIDIA GPU is present (needs network)
+#   6. enables OpenRC services and gaming tweaks
+#   7. installs GRUB for UEFI or BIOS
+#
+# Steps that would leave the system unbootable (initramfs, GRUB) abort the
+# install with an error. Everything else only warns.
+# ==============================================================================
+
+set -uo pipefail
+
+log()  { echo "[fenrir-postinstall] $*"; }
+warn() { echo "[fenrir-postinstall] WARNING: $*" >&2; }
+die()  { echo "[fenrir-postinstall] ERROR: $*" >&2; exit 1; }
+
+[[ $EUID -eq 0 ]] || die "must run as root (inside the target chroot)"
+
+# ------------------------------------------------------------------------------
+# 1. Live-session-only files
+# ------------------------------------------------------------------------------
+remove_live_config() {
+    log "Removing live session configuration"
+    rm -f /etc/sudoers.d/live                       # NOPASSWD sudo for wheel
+    rm -f /etc/sddm.conf.d/autologin.conf           # autologin as 'fenrir'
+    rm -f /etc/local.d/pacman-init.start            # live keyring init
+    rm -f /etc/mkinitcpio.conf.d/archiso.conf       # archiso hooks
+    rm -f /etc/mkinitcpio.d/*.preset                # live 'archiso' preset
+    rm -rf /etc/calamares
+    rm -f /usr/share/applications/install-fenriros.desktop
+}
+
+# ------------------------------------------------------------------------------
+# 2. Identity
+# ------------------------------------------------------------------------------
+reset_identity() {
+    log "Generating a new machine-id"
+    rm -f /etc/machine-id /var/lib/dbus/machine-id
+    dbus-uuidgen --ensure=/etc/machine-id
+    mkdir -p /var/lib/dbus
+    ln -sf /etc/machine-id /var/lib/dbus/machine-id
+
+    log "Locking the root account (use sudo; set a root password with 'sudo passwd root' if you want one)"
+    passwd -l root >/dev/null
+
+    log "Applying FenrirOS os-release"
+    /usr/local/bin/fenrir-os-release || warn "could not write os-release"
+
+    log "Creating a fresh pacman keyring"
+    rm -rf /etc/pacman.d/gnupg
+    if pacman-key --init >/dev/null 2>&1 \
+        && pacman-key --populate artix archlinux cachyos >/dev/null 2>&1; then
+        log "pacman keyring ready"
+    else
+        warn "pacman keyring setup failed; run 'sudo pacman-key --init && sudo pacman-key --populate artix archlinux cachyos' after first boot"
+    fi
+    # gpg-agent started by pacman-key would keep the target busy and make
+    # Calamares fail to unmount it.
+    gpgconf --homedir /etc/pacman.d/gnupg --kill all >/dev/null 2>&1 || true
+}
+
+# ------------------------------------------------------------------------------
+# 3. Live-only packages
+# ------------------------------------------------------------------------------
+remove_live_packages() {
+    local pkgs=() p
+    for p in calamares mkinitcpio-archiso; do
+        pacman -Qq "$p" >/dev/null 2>&1 && pkgs+=("$p")
+    done
+    if ((${#pkgs[@]})); then
+        log "Removing live-only packages: ${pkgs[*]}"
+        pacman -Rns --noconfirm "${pkgs[@]}" || warn "could not remove ${pkgs[*]}"
+    fi
+}
+
+# ------------------------------------------------------------------------------
+# 4. Kernels and initramfs
+# ------------------------------------------------------------------------------
+installed_kernels() {
+    # Prints the pkgbase (e.g. linux-cachyos) of every installed kernel.
+    local f
+    for f in /usr/lib/modules/*/pkgbase; do
+        [[ -r $f ]] && cat "$f"
+    done
+}
+
+kernel_dir() {
+    # Prints the /usr/lib/modules/<version> directory for a pkgbase.
+    local f
+    for f in /usr/lib/modules/*/pkgbase; do
+        [[ -r $f && $(cat "$f") == "$1" ]] && { dirname "$f"; return 0; }
+    done
+    return 1
+}
+
+write_mkinitcpio_conf() {
+    local hooks="base fenrir-udev autodetect"
+    # The microcode hook (mkinitcpio 38+) embeds CPU microcode in the image.
+    [[ -e /usr/lib/initcpio/install/microcode ]] && hooks+=" microcode"
+    hooks+=" modconf kms keyboard keymap consolefont block filesystems fsck"
+
+    log "Writing /etc/mkinitcpio.conf"
+    cat > /etc/mkinitcpio.conf <<EOF
+# FenrirOS - /etc/mkinitcpio.conf
+# fenrir-udev replaces the systemd-based udev hook on OpenRC.
+MODULES=()
+BINARIES=()
+FILES=()
+HOOKS=(${hooks})
+EOF
+}
+
+setup_kernels() {
+    local kernels pkgbase dir
+    mapfile -t kernels < <(installed_kernels)
+    ((${#kernels[@]})) || die "no kernel found in /usr/lib/modules"
+
+    mkdir -p /etc/mkinitcpio.d
+    for pkgbase in "${kernels[@]}"; do
+        dir=$(kernel_dir "$pkgbase") || continue
+        log "Installing kernel ${pkgbase} ($(basename "$dir")) to /boot"
+        # archiso empties /boot in the live image, so put the kernel back.
+        install -Dm644 "${dir}/vmlinuz" "/boot/vmlinuz-${pkgbase}"
+
+        # Point at the kernel image, not a version string, so the preset
+        # keeps working after kernel updates.
+        cat > "/etc/mkinitcpio.d/${pkgbase}.preset" <<EOF
+# mkinitcpio preset for '${pkgbase}' (written by the FenrirOS installer)
+ALL_kver="/boot/vmlinuz-${pkgbase}"
+
+PRESETS=('default' 'fallback')
+
+default_image="/boot/initramfs-${pkgbase}.img"
+
+fallback_image="/boot/initramfs-${pkgbase}-fallback.img"
+fallback_options="-S autodetect"
+EOF
+    done
+}
+
+build_initramfs() {
+    log "Building initramfs images"
+    mkinitcpio -P || die "mkinitcpio failed; the installed system would not boot"
+}
+
+# ------------------------------------------------------------------------------
+# 5. Services and tweaks
+# ------------------------------------------------------------------------------
+enable_service() {
+    local svc=$1 runlevel=${2:-default}
+    if [[ ! -e /etc/init.d/${svc} ]]; then
+        warn "service ${svc} not installed, skipping"
+        return 0
+    fi
+    rc-update add "$svc" "$runlevel" >/dev/null 2>&1 || true
+    log "  enabled ${svc} (${runlevel})"
+}
+
+setup_services() {
+    log "Enabling OpenRC services"
+    enable_service udev sysinit
+    enable_service dbus
+    enable_service elogind
+    enable_service NetworkManager
+    enable_service bluetoothd
+    enable_service sddm
+    enable_service acpid
+    enable_service cronie
+    enable_service scx
+}
+
+setup_tweaks() {
+    log "Applying gaming tweaks"
+    mkdir -p /etc/sysctl.d
+    cat > /etc/sysctl.d/99-fenriros-gaming.conf <<'EOF'
+# FenrirOS gaming defaults
+# Some games (and Proton) need far more memory mappings than the default.
+vm.max_map_count = 2147483642
+# Prefer keeping game data in RAM over swapping.
+vm.swappiness = 10
+EOF
+    # gamemode uses this group for its polkit rules.
+    getent group gamemode >/dev/null || groupadd -r gamemode
+}
+
+# ------------------------------------------------------------------------------
+# 6. NVIDIA
+# ------------------------------------------------------------------------------
+setup_nvidia() {
+    # Never fatal: a failed driver install still leaves a bootable system
+    # (nouveau/modesetting), and the driver manager can retry later.
+    /usr/local/bin/fenrir-nvidia-setup --no-rebuild \
+        || warn "NVIDIA driver setup failed; run 'FenrirOS Driver Manager' after first boot"
+}
+
+# ------------------------------------------------------------------------------
+# 7. GRUB
+# ------------------------------------------------------------------------------
+find_esp() {
+    local d
+    for d in /boot/efi /efi /boot; do
+        if mountpoint -q "$d" && [[ $(findmnt -no FSTYPE "$d") == vfat ]]; then
+            echo "$d"
+            return 0
+        fi
+    done
+    return 1
+}
+
+boot_disk() {
+    # Disk that holds /boot (or /), for BIOS installs.
+    local src
+    src=$(findmnt -no SOURCE /boot 2>/dev/null || findmnt -no SOURCE /)
+    src=${src%%\[*}     # strip btrfs subvolume, e.g. /dev/sda2[/@]
+    lsblk -no PKNAME "$src" 2>/dev/null | head -n1
+}
+
+set_grub_default() {
+    local key=$1 value=$2 file=/etc/default/grub
+    if grep -qE "^#?${key}=" "$file"; then
+        sed -i -E "s|^#?${key}=.*|${key}=${value}|" "$file"
+    else
+        echo "${key}=${value}" >> "$file"
+    fi
+}
+
+install_grub() {
+    [[ -f /etc/default/grub ]] || die "/etc/default/grub missing (is grub installed?)"
+    set_grub_default GRUB_DISTRIBUTOR '"FenrirOS"'
+    set_grub_default GRUB_DISABLE_OS_PROBER 'false'
+
+    if [[ -d /sys/firmware/efi ]]; then
+        local esp
+        esp=$(find_esp) || die "UEFI boot but no EFI system partition is mounted"
+        log "Installing GRUB for UEFI (ESP at ${esp})"
+        if ! grub-install --target=x86_64-efi --efi-directory="$esp" \
+                --bootloader-id=FenrirOS --recheck; then
+            warn "could not register a UEFI boot entry, installing without NVRAM"
+            grub-install --target=x86_64-efi --efi-directory="$esp" \
+                --bootloader-id=FenrirOS --no-nvram \
+                || die "grub-install (UEFI) failed"
+        fi
+        # Also install to the fallback path (EFI/BOOT/BOOTX64.EFI) so boards
+        # that forget or ignore NVRAM entries still boot.
+        grub-install --target=x86_64-efi --efi-directory="$esp" --removable \
+            || warn "could not install the EFI fallback loader"
+    else
+        local disk
+        disk=$(boot_disk)
+        [[ -n $disk ]] || die "could not work out which disk to install GRUB to"
+        log "Installing GRUB for BIOS on /dev/${disk}"
+        grub-install --target=i386-pc --recheck "/dev/${disk}" \
+            || die "grub-install (BIOS) failed"
+    fi
+
+    log "Writing /boot/grub/grub.cfg"
+    grub-mkconfig -o /boot/grub/grub.cfg || die "grub-mkconfig failed"
+}
+
+# ------------------------------------------------------------------------------
+main() {
+    remove_live_config
+    reset_identity
+    remove_live_packages
+    write_mkinitcpio_conf
+    setup_kernels
+    setup_nvidia
+    build_initramfs
+    setup_services
+    setup_tweaks
+    install_grub
+    rm -f /usr/local/bin/fenrir-postinstall
+    log "Done"
+}
+
+main "$@"
