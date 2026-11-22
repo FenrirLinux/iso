@@ -13,6 +13,7 @@ intel-ucode
 mkinitcpio
 mkinitcpio-archiso
 openrc
+elogind-openrc
 dbus
 dbus-openrc
 
