@@ -66,6 +66,8 @@ archiso-profile/                 the live ISO (console only)
             └── usr/lib/firefox/         Fenrir Browser policies and defaults
 assets/                          Fenrir Browser theme source
 build.sh                         build script
+scripts/                         container build and QEMU test helpers
+shell.nix                        QEMU + UEFI firmware for testing on NixOS
 ```
 
 To change what gets installed, edit the package lists or drop files into
@@ -73,7 +75,11 @@ To change what gets installed, edit the package lists or drop files into
 
 ## Building the ISO
 
-On Arch, CachyOS or Artix:
+**Easiest: let GitHub build it.** Add the `build-iso` label to a pull request (or
+run **Actions → Check → Run workflow**). When the run finishes, download the ISO
+from its **Artifacts** section.
+
+**On Arch, CachyOS or Artix:**
 
 ```bash
 sudo pacman -S archiso
@@ -81,10 +87,39 @@ sudo ./build.sh            # ISO is written to ./out/
 sudo ./build.sh --clean    # start from scratch
 ```
 
+**On anything else (NixOS, Fedora, Ubuntu...):** build inside an Arch container
+with podman or docker. On NixOS, first add `virtualisation.podman.enable = true;`
+to `configuration.nix` and run `sudo nixos-rebuild switch`. Then:
+
+```bash
+sudo ./scripts/build-in-container.sh
+```
+
 `build.sh` keeps its own pacman keyring in `work/gnupg` with the Arch, Artix and
 CachyOS keys, so packages are signature-checked without changing your host's
-keyring. You can also run a full build in GitHub Actions: **Actions → Check → Run
-workflow**.
+keyring. A build needs about 15 GB of free disk space.
+
+## Testing in a virtual machine
+
+`scripts/test-vm.sh` boots the newest ISO in `out/` with QEMU. On NixOS, run it
+through the repo's `shell.nix`, which provides QEMU and the UEFI firmware:
+
+```bash
+nix-shell --run ./scripts/test-vm.sh                    # UEFI
+nix-shell --run "./scripts/test-vm.sh --bios"           # legacy BIOS
+nix-shell --run "./scripts/test-vm.sh --installed"      # boot the installed disk
+nix-shell --run "./scripts/test-vm.sh --reset"          # wipe the VM disk, start over
+```
+
+In the VM, a hands-off install (erases the virtual disk `/dev/vda`, only asks
+for a password) is:
+
+```bash
+fenrir-install -c /usr/share/fenrir/examples/vm-test.conf
+```
+
+After the install, power off and boot with `--installed`. The VM forwards SSH
+to `localhost:2222`.
 
 ## Roadmap
 

@@ -3,6 +3,7 @@ name: Check
 on:
   push:
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
 jobs:
@@ -18,7 +19,8 @@ jobs:
             build.sh \
             archiso-profile/profiledef.sh \
             archiso-profile/airootfs/usr/local/bin/* \
-            archiso-profile/airootfs/usr/share/fenrir/rootfs/usr/local/bin/*
+            archiso-profile/airootfs/usr/share/fenrir/rootfs/usr/local/bin/* \
+            scripts/*.sh
           # ash/openrc-run scripts: syntax only
           for f in archiso-profile/airootfs/usr/lib/initcpio/hooks/* \
                    archiso-profile/airootfs/usr/share/fenrir/rootfs/etc/init.d/*; do
@@ -39,9 +41,14 @@ jobs:
           ! grep -rnE 'archisolabel=FENRIR_[0-9]' archiso-profile/
 
   build:
-    # Full ISO build. Manual only (Actions > Check > Run workflow): it takes a
-    # while and downloads a few GB of packages.
-    if: github.event_name == 'workflow_dispatch'
+    # Full ISO build. It takes a while, so it only runs when asked:
+    # - Actions > Check > Run workflow, or
+    # - a pull request with the "build-iso" label (rebuilt on every push).
+    # Download the ISO from the run's "Artifacts" section.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+       contains(github.event.pull_request.labels.*.name, 'build-iso'))
     needs: lint
     runs-on: ubuntu-latest
     container:
@@ -50,11 +57,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install archiso
-        run: pacman -Syu --noconfirm archiso
+        run: |
+          pacman-key --init
+          pacman-key --populate archlinux
+          pacman -Syu --noconfirm --needed archiso
       - name: Build
         run: ./build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: fenrirlinux-iso
           path: out/*.iso
+          compression-level: 0
           retention-days: 7
