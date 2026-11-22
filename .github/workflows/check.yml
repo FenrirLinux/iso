@@ -60,7 +60,7 @@ jobs:
         run: |
           pacman-key --init
           pacman-key --populate archlinux
-          pacman -Syu --noconfirm --needed archiso
+          pacman -Syu --noconfirm --needed archiso grub
       - name: Build
         run: ./build.sh
       - uses: actions/upload-artifact@v4

@@ -45,7 +45,7 @@ echo "==> Building in ${IMAGE} with ${engine} (this takes a while)"
         pacman-key --init >/dev/null 2>&1
         pacman-key --populate archlinux >/dev/null 2>&1
         echo "==> Installing archiso in the container"
-        pacman -Syu --noconfirm --needed archiso >/dev/null
+        pacman -Syu --noconfirm --needed archiso grub >/dev/null
         ./build.sh "$@"
         # Give the ISO back to the user who ran sudo.
         chown -R "$OWNER" out

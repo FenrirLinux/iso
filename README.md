@@ -82,7 +82,7 @@ from its **Artifacts** section.
 **On Arch, CachyOS or Artix:**
 
 ```bash
-sudo pacman -S archiso
+sudo pacman -S archiso grub
 sudo ./build.sh            # ISO is written to ./out/
 sudo ./build.sh --clean    # start from scratch
 ```

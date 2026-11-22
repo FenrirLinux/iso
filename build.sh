@@ -33,6 +33,8 @@ die()  { printf '\033[1;31m==> ERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 for cmd in mkarchiso pacman pacman-key gpg bsdtar; do
     command -v "$cmd" >/dev/null || die "$cmd not found (sudo pacman -S archiso)"
 done
+# mkarchiso builds the UEFI boot image with the host's GRUB.
+command -v grub-mkstandalone >/dev/null || die "grub not found (sudo pacman -S grub)"
 
 if [[ ${1:-} == --clean ]]; then
     msg "Removing previous build in $WORK_DIR"
