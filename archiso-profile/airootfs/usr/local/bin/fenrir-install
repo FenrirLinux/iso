@@ -505,13 +505,17 @@ finish() {
 
 # ------------------------------------------------------------------------------
 main() {
+    case ${1:-} in
+        --help) set -- -h ;;
+        --*) die "unknown option: $1. Usage: fenrir-install [-c answers.conf]   (fenrir-install -h for help)" ;;
+    esac
     while getopts ":c:h" opt; do
         case $opt in
             c) [[ -f $OPTARG ]] || die "answers file not found: $OPTARG"
                # shellcheck source=/dev/null
                source "$OPTARG" ;;
             h) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-            *) die "usage: fenrir-install [-c answers.conf]" ;;
+            *) die "unknown option. Usage: fenrir-install [-c answers.conf]   (fenrir-install -h for help)" ;;
         esac
     done
 

@@ -4,7 +4,10 @@
   1. Get online
        Ethernet connects by itself. For Wi-Fi run:   nmtui
   2. (optional) Change the keyboard layout, e.g.:    loadkeys de
-  3. Install Fenrir Linux:                               fenrir-install
+  3. Install Fenrir Linux:                           fenrir-install
+
+  Test install in a VM (erases /dev/vda, asks only for a password):
+       fenrir-install -c /usr/share/fenrir/examples/vm-test.conf
 
   Manual partitioning: mount your root at /mnt (and the EFI system
   partition at /mnt/boot/efi), then pick "use what's mounted at
