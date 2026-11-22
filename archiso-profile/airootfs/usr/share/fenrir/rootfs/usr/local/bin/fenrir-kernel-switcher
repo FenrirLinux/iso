@@ -45,7 +45,9 @@ apply_changes() {
 
     if ((${#install[@]})); then
         for k in "${install[@]}"; do
-            pkgs+=("$k" "${k}-headers")
+            # No -headers: they need a newer pahole than Artix ships, and
+            # Fenrir uses prebuilt modules instead of DKMS.
+            pkgs+=("$k")
             [[ -n $suffix ]] && pkgs+=("${k}${suffix}")
         done
         echo "Installing: ${pkgs[*]}"
