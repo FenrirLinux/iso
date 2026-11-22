@@ -66,7 +66,6 @@ archiso-profile/                 the live ISO (console only)
             └── usr/lib/firefox/         Fenrir Browser policies and defaults
 assets/                          Fenrir Browser theme source
 build.sh                         build script
-index.html                       fenrirlinux.org landing page
 ```
 
 To change what gets installed, edit the package lists or drop files into
@@ -98,6 +97,7 @@ workflow**.
 ## Links
 
 - Website: https://fenrirlinux.org
+- Website source: https://github.com/FenrirLinux/website
 - Issues: https://github.com/FenrirLinux/iso/issues
 
 ---
