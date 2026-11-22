@@ -63,32 +63,8 @@ EOF
     find "$tmp/pkgs" -name "${pkg}-[0-9]*.pkg.tar.*" ! -name '*.sig' | sort -V | tail -n1
 }
 
-# Do what "pacman-key --populate <name>" does, but from our own folder:
-# import <name>.gpg, locally sign the master keys listed in <name>-trusted
-# and give them owner trust (so keys they certify, like the build servers'
-# and packagers' keys, are valid), and disable keys in <name>-revoked.
-import_keyring() {
-    local dir=$1 name=$2 fpr
-    [[ -f $dir/$name.gpg ]] || die "keyring $name.gpg not found in $dir"
-    gpg --homedir "$GNUPG" --batch --quiet --import "$dir/$name.gpg" 2>/dev/null
-    while IFS=: read -r fpr _; do
-        [[ -n $fpr && $fpr != \#* ]] || continue
-        pacman-key --gpgdir "$GNUPG" --lsign-key "$fpr" >/dev/null 2>&1 \
-            || die "could not sign $name key $fpr"
-    done < "$dir/$name-trusted"
-    gpg --homedir "$GNUPG" --batch --quiet --import-ownertrust < "$dir/$name-trusted" 2>/dev/null \
-        || die "could not set owner trust for $name"
-    if [[ -s $dir/$name-revoked ]]; then
-        while read -r fpr; do
-            [[ -n $fpr ]] || continue
-            printf 'disable\nquit\n' | gpg --homedir "$GNUPG" --batch --command-fd 0 \
-                --edit-key "$fpr" >/dev/null 2>&1 || true
-        done < "$dir/$name-revoked"
-    fi
-}
-
 setup_keyring() {
-    if [[ -f $GNUPG/.fenrir-ready-v2 ]]; then
+    if [[ -f $GNUPG/.fenrir-ready-v3 ]]; then
         msg "Reusing build keyring in $GNUPG (use --clean to refresh it)"
         return
     fi
@@ -111,12 +87,16 @@ setup_keyring() {
         bsdtar -xf "$pkg" -C "$keyrings" --strip-components 4 usr/share/pacman/keyrings
     done
 
-    import_keyring "$keyrings" archlinux
-    import_keyring "$keyrings" artix
-    import_keyring "$keyrings" cachyos
-    pacman-key --gpgdir "$GNUPG" --updatedb >/dev/null 2>&1 || true
+    # Run the real "pacman-key --populate" (import, locally sign, owner
+    # trust, disable revoked keys). It only reads keyrings from
+    # /usr/share/pacman/keyrings, so show it our folder there through a
+    # bind mount in a private mount namespace; the host is not changed.
+    unshare --mount --propagation private sh -c '
+        mount --bind "$1" /usr/share/pacman/keyrings &&
+        pacman-key --gpgdir "$2" --populate archlinux artix cachyos
+    ' populate "$keyrings" "$GNUPG" >/dev/null || die "could not populate the build keyring"
     gpgconf --homedir "$GNUPG" --kill all >/dev/null 2>&1 || true
-    touch "$GNUPG/.fenrir-ready-v2"
+    touch "$GNUPG/.fenrir-ready-v3"
 }
 
 # ------------------------------------------------------------------------------
@@ -127,8 +107,11 @@ prepare_profile() {
     rm -rf "$PROFILE"
     cp -a "$PROFILE_SRC" "$PROFILE"
 
-    # Use the build keyring for signature checks.
-    sed -i "/^\[options\]/a GPGDir = $GNUPG" "$PROFILE/pacman.conf"
+    # Use the build keyring for signature checks, and a package cache of our
+    # own: the host's cache holds Arch builds with the same file names as
+    # Artix packages (glibc, zlib, ...), which would fail Artix's signatures.
+    mkdir -p "$WORK_DIR/pkgcache"
+    sed -i "/^\[options\]/a GPGDir = $GNUPG\nCacheDir = $WORK_DIR/pkgcache/" "$PROFILE/pacman.conf"
 
     # Signed Fenrir Browser theme (see assets/firefox-theme/README.md).
     local xpi=$REPO_DIR/assets/firefox-theme/fenrir-theme-signed.xpi
