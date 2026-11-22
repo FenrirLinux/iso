@@ -8,7 +8,7 @@
 #
 # Works on Arch, CachyOS or Artix with archiso installed. The build host's own
 # pacman keyring is never touched: signatures are checked against a separate
-# keyring in $WORK_DIR/gnupg that holds the Arch, Artix and CachyOS keys.
+# keyring in $WORK_DIR/gnupg that holds the Arch, Artix, CachyOS and Fenrir keys.
 # ==============================================================================
 
 set -euo pipefail
@@ -24,6 +24,7 @@ GNUPG=$WORK_DIR/gnupg
 ARTIX_MIRROR='https://mirrors.dotsrc.org/artix-linux/repos/$repo/os/$arch'
 # shellcheck disable=SC2016
 CACHYOS_MIRROR='https://mirror.cachyos.org/repo/$arch/$repo'
+FENRIR_MIRROR='https://github.com/FenrirLinux/packages/releases/download/repo'
 
 msg()  { printf '\033[1;32m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m==> WARNING:\033[0m %s\n' "$*" >&2; }
@@ -64,7 +65,7 @@ EOF
 }
 
 setup_keyring() {
-    if [[ -f $GNUPG/.fenrir-ready-v3 ]]; then
+    if [[ -f $GNUPG/.fenrir-ready-v4 ]]; then
         msg "Reusing build keyring in $GNUPG (use --clean to refresh it)"
         return
     fi
@@ -79,7 +80,8 @@ setup_keyring() {
     cp /usr/share/pacman/keyrings/archlinux* "$keyrings/" \
         || die "host has no archlinux keyring (sudo pacman -S archlinux-keyring)"
 
-    for spec in "artix-keyring system $ARTIX_MIRROR" "cachyos-keyring cachyos $CACHYOS_MIRROR"; do
+    for spec in "artix-keyring system $ARTIX_MIRROR" "cachyos-keyring cachyos $CACHYOS_MIRROR" \
+                "fenrir-keyring fenrir $FENRIR_MIRROR"; do
         read -r name repo server <<< "$spec"
         msg "Fetching $name"
         pkg=$(fetch_keyring_pkg "$name" "$repo" "$server")
@@ -93,10 +95,10 @@ setup_keyring() {
     # bind mount in a private mount namespace; the host is not changed.
     unshare --mount --propagation private sh -c '
         mount --bind "$1" /usr/share/pacman/keyrings &&
-        pacman-key --gpgdir "$2" --populate archlinux artix cachyos
+        pacman-key --gpgdir "$2" --populate archlinux artix cachyos fenrir
     ' populate "$keyrings" "$GNUPG" >/dev/null || die "could not populate the build keyring"
     gpgconf --homedir "$GNUPG" --kill all >/dev/null 2>&1 || true
-    touch "$GNUPG/.fenrir-ready-v3"
+    touch "$GNUPG/.fenrir-ready-v4"
 }
 
 # ------------------------------------------------------------------------------
@@ -112,15 +114,6 @@ prepare_profile() {
     # Artix packages (glibc, zlib, ...), which would fail Artix's signatures.
     mkdir -p "$WORK_DIR/pkgcache"
     sed -i "/^\[options\]/a GPGDir = $GNUPG\nCacheDir = $WORK_DIR/pkgcache/" "$PROFILE/pacman.conf"
-
-    # Signed Fenrir Browser theme (see assets/firefox-theme/README.md).
-    local xpi=$REPO_DIR/assets/firefox-theme/fenrir-theme-signed.xpi
-    if [[ -f $xpi ]]; then
-        install -Dm644 "$xpi" \
-            "$PROFILE/airootfs/usr/share/fenrir/rootfs/usr/lib/firefox/distribution/extensions/fenrir-theme@fenrirlinux.org.xpi"
-    else
-        warn "no signed Firefox theme found; Fenrir Browser will use the default theme"
-    fi
 }
 
 setup_keyring

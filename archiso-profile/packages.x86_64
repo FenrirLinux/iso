@@ -24,6 +24,8 @@ syslinux
 mtools
 
 # --- Repos & keyrings ---
+fenrir-keyring
+fenrir-base
 artix-keyring
 artix-mirrorlist
 artix-archlinux-support

@@ -150,11 +150,11 @@ preflight() {
     msg "Preparing the package keyring"
     if [[ ! -s /etc/pacman.d/gnupg/pubring.gpg && ! -s /etc/pacman.d/gnupg/pubring.kbx ]]; then
         pacman-key --init
-        pacman-key --populate artix archlinux cachyos
+        pacman-key --populate artix archlinux cachyos fenrir
     fi
     pacman -Sy --noconfirm
     # The ISO's keyrings may be older than the packages on the mirrors.
-    pacman -S --needed --noconfirm artix-keyring archlinux-keyring cachyos-keyring
+    pacman -S --needed --noconfirm artix-keyring archlinux-keyring cachyos-keyring fenrir-keyring
 }
 
 # ------------------------------------------------------------------------------
@@ -369,16 +369,10 @@ install_packages() {
     fstabgen -U "$TARGET" >> "$TARGET/etc/fstab"
 }
 
-copy_fenrir_files() {
-    msg "Adding Fenrir Linux files"
-    cp -a "$FENRIR_DIR/rootfs/." "$TARGET/"
-    install -m644 /etc/pacman.conf "$TARGET/etc/pacman.conf"
-    if [[ $PROFILE != desktop ]]; then
-        # Desktop-only bits are pointless on a console install.
-        rm -f "$TARGET/etc/xdg/autostart/fenrir-pipewire.desktop" \
-              "$TARGET"/usr/share/applications/fenrir-*.desktop
-        rm -rf "$TARGET/usr/lib/firefox"
-    fi
+check_fenrir_setup() {
+    # fenrir-base adds the repos to pacman.conf when it's installed.
+    grep -q '^\[fenrir\]' "$TARGET/etc/pacman.conf" \
+        || die "fenrir-base did not set up /etc/pacman.conf on the new system"
 }
 
 configure_system() {
@@ -410,12 +404,12 @@ configure_system() {
 EOF
 
     # Branding
-    chroot_run /usr/local/bin/fenrir-os-release
+    chroot_run /usr/bin/fenrir-os-release
 
     # Pacman keyring for the new system
     msg "Setting up the package keyring"
     chroot_run pacman-key --init
-    chroot_run pacman-key --populate artix archlinux cachyos
+    chroot_run pacman-key --populate artix archlinux cachyos fenrir
     chroot_run gpgconf --homedir /etc/pacman.d/gnupg --kill all || true
 }
 
@@ -459,7 +453,7 @@ enable_services() {
 setup_nvidia() {
     ((HAS_NVIDIA)) || return 0
     msg "Installing the NVIDIA driver"
-    chroot_run /usr/local/bin/fenrir-nvidia-setup --no-rebuild \
+    chroot_run /usr/bin/fenrir-nvidia-setup --no-rebuild \
         || warn "NVIDIA setup failed; run 'Fenrir Linux Driver Manager' after the first boot"
 }
 
@@ -531,7 +525,7 @@ main() {
 
     partition_and_mount
     install_packages
-    copy_fenrir_files
+    check_fenrir_setup
     configure_system
     create_user
     enable_services

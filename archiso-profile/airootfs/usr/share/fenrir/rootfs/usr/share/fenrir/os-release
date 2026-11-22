@@ -1,9 +1,0 @@
-NAME="Fenrir Linux"
-PRETTY_NAME="Fenrir Linux 0.1 Midgard"
-ID=fenrir
-ID_LIKE="artix arch"
-BUILD_ID=rolling
-ANSI_COLOR="1;31"
-HOME_URL="https://fenrirlinux.org"
-SUPPORT_URL="https://github.com/FenrirLinux/iso/issues"
-BUG_REPORT_URL="https://github.com/FenrirLinux/iso/issues"

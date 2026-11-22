@@ -19,11 +19,9 @@ jobs:
             build.sh \
             archiso-profile/profiledef.sh \
             archiso-profile/airootfs/usr/local/bin/* \
-            archiso-profile/airootfs/usr/share/fenrir/rootfs/usr/local/bin/* \
             scripts/*.sh
           # ash/openrc-run scripts: syntax only
-          for f in archiso-profile/airootfs/usr/lib/initcpio/hooks/* \
-                   archiso-profile/airootfs/usr/share/fenrir/rootfs/etc/init.d/*; do
+          for f in archiso-profile/airootfs/usr/lib/initcpio/hooks/*; do
             sh -n "$f"
           done
 
@@ -31,7 +29,7 @@ jobs:
         run: |
           python3 - <<'PY'
           import glob, json
-          for f in glob.glob("archiso-profile/**/*.json", recursive=True) + glob.glob("assets/**/*.json", recursive=True):
+          for f in glob.glob("archiso-profile/**/*.json", recursive=True):
               json.load(open(f))
           print("ok")
           PY

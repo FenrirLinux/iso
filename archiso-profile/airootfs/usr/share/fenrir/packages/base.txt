@@ -18,6 +18,10 @@ grub
 efibootmgr
 os-prober
 
+# --- Fenrir (branding, repos, scx service, tweaks, NVIDIA setup) ---
+fenrir-base
+fenrir-keyring
+
 # --- Repos & keyrings ---
 artix-keyring
 artix-mirrorlist

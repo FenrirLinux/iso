@@ -24,11 +24,4 @@ file_permissions=(
   ["/usr/local/bin/fenrir-install"]="0:0:755"
   ["/usr/lib/initcpio/hooks/fenrir-udev"]="0:0:644"
   ["/usr/lib/initcpio/install/fenrir-udev"]="0:0:644"
-  # Files copied onto installed systems (cp -a keeps these modes)
-  ["/usr/share/fenrir/rootfs/etc/init.d/scx"]="0:0:755"
-  ["/usr/share/fenrir/rootfs/usr/local/bin/fenrir-driver-manager"]="0:0:755"
-  ["/usr/share/fenrir/rootfs/usr/local/bin/fenrir-kernel-switcher"]="0:0:755"
-  ["/usr/share/fenrir/rootfs/usr/local/bin/fenrir-nvidia-setup"]="0:0:755"
-  ["/usr/share/fenrir/rootfs/usr/local/bin/fenrir-os-release"]="0:0:755"
-  ["/usr/share/fenrir/rootfs/usr/local/bin/fenrir-pipewire-launcher"]="0:0:755"
 )

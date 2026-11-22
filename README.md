@@ -41,6 +41,10 @@ The ISO works like the Arch ISO: it boots to a console, you get online and run
 NVIDIA GPUs are detected and get CachyOS's prebuilt driver automatically. Root
 login is disabled; your user is an admin through `sudo`.
 
+Prefer doing it by hand, like Arch? See [docs/manual-install.md](docs/manual-install.md).
+Everything Fenrir-specific comes from the `fenrir-base` package, so there's
+nothing to copy by hand.
+
 For repeat installs (VMs, testing), put the answers in a file and run
 `fenrir-install -c answers.conf`. See `fenrir-install -h` for the variables.
 Passwords are always asked for. The full log ends up in
@@ -59,19 +63,17 @@ archiso-profile/                 the live ISO (console only)
     └── usr/share/fenrir/
         ├── packages/base.txt            installed on every system
         ├── packages/desktop.txt         added for the desktop profile
-        └── rootfs/                      copied onto every installed system:
-            ├── usr/local/bin/           driver manager, kernel switcher,
-            │                            NVIDIA setup, PipeWire launcher
-            ├── etc/init.d/scx           sched_ext service
-            └── usr/lib/firefox/         Fenrir Browser policies and defaults
-assets/                          Fenrir Browser theme source
+        └── examples/vm-test.conf        hands-off VM test install
 build.sh                         build script
+docs/manual-install.md           installing by hand
 scripts/                         container build and QEMU test helpers
 shell.nix                        QEMU + UEFI firmware for testing on NixOS
 ```
 
-To change what gets installed, edit the package lists or drop files into
-`rootfs/`. No installer code changes needed.
+To change what gets installed, edit the package lists. Fenrir's own files
+(branding, tools, the scx service, the OpenRC rebuild) are packages in
+[FenrirLinux/packages](https://github.com/FenrirLinux/packages), served from
+the `[fenrir]` repo.
 
 ## Building the ISO
 
@@ -126,7 +128,7 @@ to `localhost:2222`.
 - [x] v0.1: Bootable ISO with OpenRC + elogind + KDE
 - [ ] v0.2: Steam + full gaming stack validated
 - [ ] v0.3: `fenrir-install` validated on UEFI and BIOS hardware
-- [ ] v0.4: Custom Fenrir Linux repo (ship `rootfs/` as a `fenrir-base` package)
+- [x] v0.4: Fenrir package repo (`fenrir-base`, `fenrir-desktop`, branded OpenRC)
 - [ ] v1.0: Stable release, DistroWatch listing
 
 ## Links

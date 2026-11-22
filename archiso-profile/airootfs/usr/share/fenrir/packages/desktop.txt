@@ -1,7 +1,10 @@
 # Fenrir Linux - KDE Plasma gaming desktop, added on top of base.txt
 # when "desktop" is chosen in fenrir-install.
 
-# --- Audio (started per session by fenrir-pipewire-launcher) ---
+# --- Fenrir desktop (PipeWire startup, driver manager, kernel switcher, browser defaults) ---
+fenrir-desktop
+
+# --- Audio ---
 pipewire
 pipewire-alsa
 pipewire-jack
