@@ -139,7 +139,7 @@ Add the key and the repo, then install `fenrir-base`; it sets up the rest:
 
 ```bash
 sudo pacman-key --add fenrir.gpg      # from github.com/FenrirLinux/packages
-sudo pacman-key --lsign-key 598E705FC472CEE4EEF809E3D05B82361E7C6C0E
+sudo pacman-key --lsign-key 4581C968246C120EA57FA4E3B7933835D7CF661A
 # add above [system] in /etc/pacman.conf:
 #   [fenrir]
 #   Server = https://github.com/FenrirLinux/packages/releases/download/repo
