@@ -20,7 +20,7 @@
   .break{fill:none;stroke:#c0392b;stroke-width:2;stroke-linecap:round}
   .ring{fill:none;stroke:#c0392b;stroke-width:0.5;opacity:0.15}
   .rune{fill:none;stroke:#c0392b;stroke-width:0.8;opacity:0.35}
-  .wm{font-family:Impact,sans-serif;fill:#e8e0d0;font-size:58px;letter-spacing:12px}
+  .wm{font-family:Impact,sans-serif;fill:#e8e0d0;font-size:50px;letter-spacing:10px}
   .sub{font-family:Arial,sans-serif;fill:#c0392b;font-size:13px;letter-spacing:10px}
 </style>
 <rect width="680" height="680" class="bg"/>
@@ -85,6 +85,6 @@
 <ellipse cx="460" cy="483" rx="9" ry="5" transform="rotate(15,460,483)" class="link"/>
 <path d="M462,498 L475,520" class="break"/>
 <path d="M457,500 L443,518" class="break"/>
-<text x="340" y="600" text-anchor="middle" class="wm">FENRIROS</text>
+<text x="340" y="600" text-anchor="middle" class="wm">FENRIR LINUX</text>
 <text x="340" y="626" text-anchor="middle" class="sub">UNCHAINED</text>
 </svg>

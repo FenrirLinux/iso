@@ -1,4 +1,4 @@
-# FenrirOS - KDE Plasma gaming desktop, added on top of base.txt
+# Fenrir Linux - KDE Plasma gaming desktop, added on top of base.txt
 # when "desktop" is chosen in fenrir-install.
 
 # --- Audio (started per session by fenrir-pipewire-launcher) ---

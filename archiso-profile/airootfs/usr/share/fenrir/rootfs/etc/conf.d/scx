@@ -1,4 +1,4 @@
-# FenrirOS - sched_ext scheduler (needs a linux-cachyos kernel)
+# Fenrir Linux - sched_ext scheduler (needs a linux-cachyos kernel)
 # Any scheduler binary from the scx-scheds package works, e.g.
 # scx_lavd (default, low latency for gaming), scx_bpfland, scx_rusty.
 SCX_SCHEDULER="scx_lavd"

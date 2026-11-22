@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# FenrirOS Driver Manager
+# Fenrir Linux Driver Manager
 #
 # Runs as the normal user (so zenity can reach the Wayland/X session) and
 # only uses pkexec for the steps that actually need root.
@@ -8,7 +8,7 @@
 
 set -uo pipefail
 
-TITLE="FenrirOS Driver Manager"
+TITLE="Fenrir Linux Driver Manager"
 LOG="${XDG_RUNTIME_DIR:-/tmp}/fenrir-driver-manager.log"
 
 gpus()          { lspci 2>/dev/null | grep -E 'VGA|3D|Display'; }

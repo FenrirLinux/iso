@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# FenrirOS NVIDIA setup
+# Fenrir Linux NVIDIA setup
 #
 # Installs NVIDIA drivers for every installed CachyOS kernel, using CachyOS's
 # prebuilt module packages (<kernel>-nvidia-open / <kernel>-nvidia) so nothing
@@ -108,7 +108,7 @@ main() {
 
     # Needed for Wayland (KWin) on NVIDIA.
     install -Dm644 /dev/stdin /etc/modprobe.d/fenrir-nvidia.conf <<'EOF'
-# FenrirOS - NVIDIA DRM kernel modesetting (required for Wayland)
+# Fenrir Linux - NVIDIA DRM kernel modesetting (required for Wayland)
 options nvidia_drm modeset=1 fbdev=1
 EOF
 

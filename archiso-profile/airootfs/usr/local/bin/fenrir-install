@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# fenrir-install - FenrirOS installer
+# fenrir-install - Fenrir Linux installer
 #
-# Guided console installer, in the spirit of archinstall. Installs FenrirOS
+# Guided console installer, in the spirit of archinstall. Installs Fenrir Linux
 # fresh from the Artix/Arch/CachyOS repos with basestrap.
 #
 #   fenrir-install                 ask everything interactively
@@ -288,10 +288,10 @@ partition_and_mount() {
     wipefs -af "$DISK"
     sgdisk --zap-all "$DISK"
     if [[ $BOOT_MODE == uefi ]]; then
-        sgdisk -n1:0:+1G -t1:ef00 -c1:EFI -n2:0:0 -t2:8300 -c2:FenrirOS "$DISK"
+        sgdisk -n1:0:+1G -t1:ef00 -c1:EFI -n2:0:0 -t2:8300 -c2:FenrirLinux "$DISK"
     else
         # GPT on BIOS needs a tiny BIOS boot partition for GRUB.
-        sgdisk -n1:0:+1M -t1:ef02 -c1:BIOSBOOT -n2:0:0 -t2:8300 -c2:FenrirOS "$DISK"
+        sgdisk -n1:0:+1M -t1:ef02 -c1:BIOSBOOT -n2:0:0 -t2:8300 -c2:FenrirLinux "$DISK"
     fi
     partprobe "$DISK" 2>/dev/null || true
     udevadm settle
@@ -305,7 +305,7 @@ partition_and_mount() {
     msg "Formatting"
     [[ $BOOT_MODE == uefi ]] && mkfs.fat -F 32 -n EFI "$p1"
     if [[ $FILESYSTEM == btrfs ]]; then
-        mkfs.btrfs -f -L FenrirOS "$p2"
+        mkfs.btrfs -f -L FenrirLinux "$p2"
         mount "$p2" "$TARGET"
         btrfs subvolume create "$TARGET/@"
         btrfs subvolume create "$TARGET/@home"
@@ -317,7 +317,7 @@ partition_and_mount() {
         mount -o "subvol=@home,$opts" "$p2" "$TARGET/home"
         mount -o "subvol=@swap,noatime" "$p2" "$TARGET/swap"
     else
-        mkfs.ext4 -F -L FenrirOS "$p2"
+        mkfs.ext4 -F -L FenrirLinux "$p2"
         mount -o noatime "$p2" "$TARGET"
     fi
 
@@ -370,7 +370,7 @@ install_packages() {
 }
 
 copy_fenrir_files() {
-    msg "Adding FenrirOS files"
+    msg "Adding Fenrir Linux files"
     cp -a "$FENRIR_DIR/rootfs/." "$TARGET/"
     install -m644 /etc/pacman.conf "$TARGET/etc/pacman.conf"
     if [[ $PROFILE != desktop ]]; then
@@ -460,7 +460,7 @@ setup_nvidia() {
     ((HAS_NVIDIA)) || return 0
     msg "Installing the NVIDIA driver"
     chroot_run /usr/local/bin/fenrir-nvidia-setup --no-rebuild \
-        || warn "NVIDIA setup failed; run 'FenrirOS Driver Manager' after the first boot"
+        || warn "NVIDIA setup failed; run 'Fenrir Linux Driver Manager' after the first boot"
 }
 
 install_bootloader() {
@@ -471,14 +471,14 @@ install_bootloader() {
     sed -i -E 's/^#?GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' "$TARGET/etc/default/grub"
     grep -q '^GRUB_DISABLE_OS_PROBER=' "$TARGET/etc/default/grub" \
         || echo 'GRUB_DISABLE_OS_PROBER=false' >> "$TARGET/etc/default/grub"
-    sed -i -E 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="FenrirOS"/' "$TARGET/etc/default/grub"
+    sed -i -E 's/^GRUB_DISTRIBUTOR=.*/GRUB_DISTRIBUTOR="Fenrir Linux"/' "$TARGET/etc/default/grub"
 
     if [[ $BOOT_MODE == uefi ]]; then
         local esp
         esp=$(find_esp) || die "no EFI system partition mounted at ${TARGET}/boot/efi"
-        if ! chroot_run grub-install --target=x86_64-efi --efi-directory="$esp" --bootloader-id=FenrirOS --recheck; then
+        if ! chroot_run grub-install --target=x86_64-efi --efi-directory="$esp" --bootloader-id=FenrirLinux --recheck; then
             warn "could not add a UEFI boot entry, installing without NVRAM"
-            chroot_run grub-install --target=x86_64-efi --efi-directory="$esp" --bootloader-id=FenrirOS --no-nvram
+            chroot_run grub-install --target=x86_64-efi --efi-directory="$esp" --bootloader-id=FenrirLinux --no-nvram
         fi
         # Fallback path EFI/BOOT/BOOTX64.EFI for boards that drop NVRAM entries.
         chroot_run grub-install --target=x86_64-efi --efi-directory="$esp" --removable \
@@ -497,7 +497,7 @@ finish() {
     umount -R "$TARGET"
 
     echo
-    printf '%s  FenrirOS is installed. Welcome to the pack.%s\n' "$GRN" "$RST"
+    printf '%s  Fenrir Linux is installed. Welcome to the pack.%s\n' "$GRN" "$RST"
     info "Remove the USB stick and reboot. Log in as ${USERNAME}."
     echo
     yes_no "Reboot now?" y && reboot
@@ -516,7 +516,7 @@ main() {
     done
 
     clear
-    printf '%s\n  FenrirOS installer\n  Gaming Linux, unchained from systemd%s\n\n' "$BOLD" "$RST"
+    printf '%s\n  Fenrir Linux installer\n  Gaming Linux, unchained from systemd%s\n\n' "$BOLD" "$RST"
 
     preflight
     ask_everything

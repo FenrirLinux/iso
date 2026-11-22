@@ -1,4 +1,4 @@
-// FenrirOS - Fenrir Browser default preferences
+// Fenrir Linux - Fenrir Browser default preferences
 // Users can still change all of these in about:config.
 
 // Branding

@@ -1,8 +1,8 @@
-# FenrirLinux - Unchained 🐺
+# Fenrir Linux - Unchained 🐺
 
 > Gaming Linux, unchained from systemd.
 
-FenrirLinux (FenrirOS) is a gaming distribution built on **Artix Linux** (OpenRC +
+Fenrir Linux is a gaming distribution built on **Artix Linux** (OpenRC +
 elogind) with the **CachyOS** kernel and sched_ext schedulers. The goal is to make a
 systemd-free system approachable for everyday gamers.
 
@@ -92,7 +92,7 @@ workflow**.
 - [x] v0.1: Bootable ISO with OpenRC + elogind + KDE
 - [ ] v0.2: Steam + full gaming stack validated
 - [ ] v0.3: `fenrir-install` validated on UEFI and BIOS hardware
-- [ ] v0.4: Custom FenrirOS repo (ship `rootfs/` as a `fenrir-base` package)
+- [ ] v0.4: Custom Fenrir Linux repo (ship `rootfs/` as a `fenrir-base` package)
 - [ ] v1.0: Stable release, DistroWatch listing
 
 ## Links

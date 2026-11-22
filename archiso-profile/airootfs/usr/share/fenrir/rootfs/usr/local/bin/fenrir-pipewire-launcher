@@ -1,5 +1,5 @@
 #!/bin/sh
-# FenrirOS - start PipeWire for the desktop session.
+# Fenrir Linux - start PipeWire for the desktop session.
 #
 # OpenRC has no user services, so nothing would start PipeWire on login.
 # This is started once per session by /etc/xdg/autostart/fenrir-pipewire.desktop

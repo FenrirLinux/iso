@@ -13,7 +13,7 @@ build() {
 
 help() {
     cat <<HELPEOF
-FenrirOS udev hook - starts Artix udevd in the initramfs, and on the live
+Fenrir Linux udev hook - starts Artix udevd in the initramfs, and on the live
 ISO waits for the boot medium to appear.
 HELPEOF
 }

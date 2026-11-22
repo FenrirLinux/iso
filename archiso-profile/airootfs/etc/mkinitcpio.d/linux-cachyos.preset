@@ -1,4 +1,4 @@
-# FenrirOS - live ISO preset for linux-cachyos.
+# Fenrir Linux - live ISO preset for linux-cachyos.
 # Shipped in airootfs so the kernel package doesn't generate its default
 # preset during the build. The installer replaces this file.
 PRESETS=('archiso')

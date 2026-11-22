@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# FenrirOS Kernel Switcher
+# Fenrir Linux Kernel Switcher
 #
 # GUI mode (no arguments, normal user): pick which CachyOS kernels should be
 # installed. Kernels you check are installed, kernels you uncheck are removed.
@@ -11,7 +11,7 @@
 
 set -uo pipefail
 
-TITLE="FenrirOS Kernel Switcher"
+TITLE="Fenrir Linux Kernel Switcher"
 LOG="${XDG_RUNTIME_DIR:-/tmp}/fenrir-kernel-switcher.log"
 
 # pkgbase|description. Only the ones the repos actually carry are shown.

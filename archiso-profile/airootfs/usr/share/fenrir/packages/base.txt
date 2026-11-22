@@ -1,4 +1,4 @@
-# FenrirOS - installed on every system by fenrir-install.
+# Fenrir Linux - installed on every system by fenrir-install.
 # One package per line; '#' starts a comment.
 
 # --- Base ---

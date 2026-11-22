@@ -6,6 +6,6 @@ Target = usr/lib/os-release
 Target = etc/os-release
 
 [Action]
-Description = Applying FenrirOS branding to os-release...
+Description = Applying Fenrir Linux branding to os-release...
 When = PostTransaction
 Exec = /usr/local/bin/fenrir-os-release

@@ -1,5 +1,5 @@
 #!/bin/sh
-# FenrirOS - apply FenrirOS branding to os-release.
+# Fenrir Linux - apply Fenrir Linux branding to os-release.
 # Run by a pacman hook whenever a package reinstalls os-release, and once
 # by fenrir-install.
 set -e

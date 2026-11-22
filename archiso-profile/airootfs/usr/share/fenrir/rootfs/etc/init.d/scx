@@ -1,5 +1,5 @@
 #!/sbin/openrc-run
-# FenrirOS - run a sched_ext scheduler under OpenRC.
+# Fenrir Linux - run a sched_ext scheduler under OpenRC.
 # scx ships only systemd units, so this replaces scx.service/scx_loader.
 
 description="sched_ext BPF CPU scheduler"

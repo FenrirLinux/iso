@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
-# FenrirOS - Unchained
+# Fenrir Linux - Unchained
 # archiso profile definition
 
-iso_name="fenriros"
+iso_name="fenrirlinux"
 # The label is substituted into the boot menus (%ARCHISO_LABEL%) and read
 # from the kernel command line by the initramfs, so it only lives here.
 iso_label="FENRIR_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
-iso_publisher="FenrirOS <https://fenrirlinux.org>"
-iso_application="FenrirOS - Unchained Gaming Linux (installer)"
+iso_publisher="Fenrir Linux <https://fenrirlinux.org>"
+iso_application="Fenrir Linux - Unchained Gaming Linux (installer)"
 iso_version="0.1.0-alpha"
 install_dir="arch"
 buildmodes=('iso')

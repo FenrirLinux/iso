@@ -1,5 +1,5 @@
 #!/usr/bin/ash
-# FenrirOS udev hook for mkinitcpio (Artix eudev/udev, no systemd).
+# Fenrir Linux udev hook for mkinitcpio (Artix eudev/udev, no systemd).
 
 run_earlyhook() {
     /usr/bin/udevd --daemon --resolve-names=never

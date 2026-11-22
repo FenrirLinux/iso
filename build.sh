@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# FenrirOS ISO build script
+# Fenrir Linux ISO build script
 #
 #   sudo ./build.sh            # ISO ends up in ./out/
 #   sudo WORK_DIR=/tmp/fw OUT_DIR=/tmp/fo ./build.sh

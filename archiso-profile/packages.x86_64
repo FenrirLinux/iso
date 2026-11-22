@@ -1,5 +1,5 @@
 # ==============================================================================
-# FenrirOS - live ISO packages (console only, like the Arch ISO)
+# Fenrir Linux - live ISO packages (console only, like the Arch ISO)
 # What gets installed onto disk is in airootfs/usr/share/fenrir/packages/.
 # ==============================================================================
 

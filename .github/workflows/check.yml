@@ -55,6 +55,6 @@ jobs:
         run: ./build.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: fenriros-iso
+          name: fenrirlinux-iso
           path: out/*.iso
           retention-days: 7
