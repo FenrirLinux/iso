@@ -63,20 +63,32 @@ EOF
     find "$tmp/pkgs" -name "${pkg}-[0-9]*.pkg.tar.*" ! -name '*.sig' | sort -V | tail -n1
 }
 
-# Import <name>.gpg and locally sign the keys in <name>-trusted,
-# which is what "pacman-key --populate <name>" does.
+# Do what "pacman-key --populate <name>" does, but from our own folder:
+# import <name>.gpg, locally sign the master keys listed in <name>-trusted
+# and give them owner trust (so keys they certify, like the build servers'
+# and packagers' keys, are valid), and disable keys in <name>-revoked.
 import_keyring() {
     local dir=$1 name=$2 fpr
     [[ -f $dir/$name.gpg ]] || die "keyring $name.gpg not found in $dir"
     gpg --homedir "$GNUPG" --batch --quiet --import "$dir/$name.gpg" 2>/dev/null
     while IFS=: read -r fpr _; do
         [[ -n $fpr && $fpr != \#* ]] || continue
-        pacman-key --gpgdir "$GNUPG" --lsign-key "$fpr" >/dev/null 2>&1
+        pacman-key --gpgdir "$GNUPG" --lsign-key "$fpr" >/dev/null 2>&1 \
+            || die "could not sign $name key $fpr"
     done < "$dir/$name-trusted"
+    gpg --homedir "$GNUPG" --batch --quiet --import-ownertrust < "$dir/$name-trusted" 2>/dev/null \
+        || die "could not set owner trust for $name"
+    if [[ -s $dir/$name-revoked ]]; then
+        while read -r fpr; do
+            [[ -n $fpr ]] || continue
+            printf 'disable\nquit\n' | gpg --homedir "$GNUPG" --batch --command-fd 0 \
+                --edit-key "$fpr" >/dev/null 2>&1 || true
+        done < "$dir/$name-revoked"
+    fi
 }
 
 setup_keyring() {
-    if [[ -f $GNUPG/.fenrir-ready ]]; then
+    if [[ -f $GNUPG/.fenrir-ready-v2 ]]; then
         msg "Reusing build keyring in $GNUPG (use --clean to refresh it)"
         return
     fi
@@ -104,7 +116,7 @@ setup_keyring() {
     import_keyring "$keyrings" cachyos
     pacman-key --gpgdir "$GNUPG" --updatedb >/dev/null 2>&1 || true
     gpgconf --homedir "$GNUPG" --kill all >/dev/null 2>&1 || true
-    touch "$GNUPG/.fenrir-ready"
+    touch "$GNUPG/.fenrir-ready-v2"
 }
 
 # ------------------------------------------------------------------------------
