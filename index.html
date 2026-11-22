@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fenrir Linux: a systemd-free gaming distribution built on Artix (OpenRC + elogind) with the CachyOS kernel.">
+<meta name="theme-color" content="#0a0e14">
 <title>Fenrir Linux — Unchained</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -10,16 +12,17 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --red: #c0392b;
-    --red-dark: #8b1a1a;
-    --red-glow: rgba(192, 57, 43, 0.3);
-    --ash: #0d0d0d;
-    --ash2: #141414;
-    --ash3: #1c1c1c;
-    --ash4: #242424;
-    --bone: #e8e0d0;
-    --bone-dim: #a09888;
-    --rune: #3a3028;
+    --accent: #28d2f5;
+    --accent-bright: #7fe6fb;
+    --accent-dark: #1688a8;
+    --accent-glow: rgba(40, 210, 245, 0.3);
+    --ash: #0a0e14;
+    --ash2: #0f151d;
+    --ash3: #151d28;
+    --ash4: #1d2733;
+    --bone: #e6edf3;
+    --bone-dim: #8fa0b2;
+    --rune: #22303f;
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Rajdhani', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -58,9 +61,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.2rem 3rem;
-    background: rgba(13, 13, 13, 0.85);
+    background: rgba(10, 14, 20, 0.85);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(192, 57, 43, 0.15);
+    border-bottom: 1px solid rgba(40, 210, 245, 0.15);
   }
 
   .nav-logo {
@@ -71,7 +74,7 @@
     text-decoration: none;
   }
 
-  .nav-logo span { color: var(--red); }
+  .nav-logo span { color: var(--accent); }
 
   .nav-links {
     display: flex;
@@ -90,7 +93,7 @@
     transition: color 0.2s;
   }
 
-  .nav-links a:hover { color: var(--red); }
+  .nav-links a:hover { color: var(--accent); }
 
   /* --- Hero --- */
   .hero {
@@ -114,7 +117,7 @@
     width: 700px;
     height: 700px;
     border-radius: 50%;
-    border: 1px solid rgba(192, 57, 43, 0.08);
+    border: 1px solid rgba(40, 210, 245, 0.08);
     animation: rune-spin 40s linear infinite;
     pointer-events: none;
   }
@@ -124,7 +127,7 @@
     position: absolute;
     inset: 40px;
     border-radius: 50%;
-    border: 1px solid rgba(192, 57, 43, 0.06);
+    border: 1px solid rgba(40, 210, 245, 0.06);
   }
 
   .rune-bg::after {
@@ -132,7 +135,7 @@
     position: absolute;
     inset: 80px;
     border-radius: 50%;
-    border: 1px solid rgba(192, 57, 43, 0.04);
+    border: 1px solid rgba(40, 210, 245, 0.04);
   }
 
   @keyframes rune-spin {
@@ -140,7 +143,7 @@
     to   { transform: translate(-50%, -50%) rotate(360deg); }
   }
 
-  /* Red spotlight */
+  /* Ice spotlight */
   .hero-glow {
     position: absolute;
     top: 20%;
@@ -148,7 +151,7 @@
     transform: translateX(-50%);
     width: 600px;
     height: 600px;
-    background: radial-gradient(ellipse, rgba(192, 57, 43, 0.12) 0%, transparent 70%);
+    background: radial-gradient(ellipse, rgba(40, 210, 245, 0.12) 0%, transparent 70%);
     pointer-events: none;
   }
 
@@ -157,7 +160,7 @@
     font-size: 0.75rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--red);
+    color: var(--accent);
     margin-bottom: 1.5rem;
     opacity: 0;
     animation: fade-up 0.8s ease 0.2s forwards;
@@ -174,19 +177,12 @@
     animation: fade-up 0.8s ease 0.4s forwards;
   }
 
-  .hero-title .wolf-icon {
-    display: block;
-    font-size: 0.15em;
-    letter-spacing: 0.5em;
-    color: var(--red);
-    margin-bottom: 0.3em;
-  }
 
   .hero-tagline {
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4vw, 2.8rem);
     letter-spacing: 0.3em;
-    color: var(--red);
+    color: var(--accent);
     margin-top: 0.5rem;
     opacity: 0;
     animation: fade-up 0.8s ease 0.6s forwards;
@@ -218,8 +214,8 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.9rem 2.5rem;
-    background: var(--red);
-    color: var(--bone);
+    background: var(--accent);
+    color: var(--ash);
     font-family: var(--font-body);
     font-size: 0.85rem;
     font-weight: 600;
@@ -233,7 +229,7 @@
   }
 
   .btn-primary:hover {
-    background: #e74c3c;
+    background: var(--accent-bright);
     transform: translateY(-2px);
   }
 
@@ -257,7 +253,7 @@
   }
 
   .btn-secondary:hover {
-    border-color: var(--red);
+    border-color: var(--accent);
     color: var(--bone);
     transform: translateY(-2px);
   }
@@ -278,7 +274,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--red);
+    background: var(--accent);
     animation: pulse 2s ease infinite;
   }
 
@@ -296,7 +292,7 @@
   .divider {
     width: 100%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
     opacity: 0.3;
     margin: 0;
   }
@@ -320,7 +316,7 @@
   .stat-value {
     font-family: var(--font-display);
     font-size: 2.5rem;
-    color: var(--red);
+    color: var(--accent);
     line-height: 1;
   }
 
@@ -345,7 +341,7 @@
     font-size: 0.7rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--red);
+    color: var(--accent);
     margin-bottom: 1rem;
   }
 
@@ -383,7 +379,7 @@
     left: 0;
     width: 3px;
     height: 0;
-    background: var(--red);
+    background: var(--accent);
     transition: height 0.3s;
   }
 
@@ -416,8 +412,8 @@
     font-size: 0.65rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--red);
-    border: 1px solid rgba(192, 57, 43, 0.3);
+    color: var(--accent);
+    border: 1px solid rgba(40, 210, 245, 0.3);
     padding: 0.2rem 0.6rem;
   }
 
@@ -450,7 +446,7 @@
     transition: border-color 0.2s;
   }
 
-  .stack-item:hover { border-color: rgba(192, 57, 43, 0.4); }
+  .stack-item:hover { border-color: rgba(40, 210, 245, 0.4); }
 
   .stack-role {
     font-family: var(--font-mono);
@@ -469,7 +465,7 @@
 
   .stack-note {
     font-size: 0.8rem;
-    color: var(--red);
+    color: var(--accent);
     font-family: var(--font-mono);
   }
 
@@ -484,7 +480,7 @@
   .quote-mark {
     font-family: var(--font-display);
     font-size: 8rem;
-    color: var(--red);
+    color: var(--accent);
     line-height: 0.5;
     opacity: 0.3;
     display: block;
@@ -549,16 +545,16 @@
   }
 
   .roadmap-item.active::before {
-    background: var(--red);
-    border-color: var(--red);
-    box-shadow: 0 0 10px var(--red-glow);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
   }
 
   .roadmap-version {
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.2em;
-    color: var(--red);
+    color: var(--accent);
     margin-bottom: 0.3rem;
   }
 
@@ -590,7 +586,7 @@
     position: absolute;
     font-family: var(--font-display);
     font-size: 20rem;
-    color: rgba(192, 57, 43, 0.03);
+    color: rgba(40, 210, 245, 0.03);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -635,7 +631,7 @@
     color: var(--bone-dim);
   }
 
-  .footer-logo span { color: var(--red); }
+  .footer-logo span { color: var(--accent); }
 
   .footer-links {
     display: flex;
@@ -653,7 +649,7 @@
     transition: color 0.2s;
   }
 
-  .footer-links a:hover { color: var(--red); }
+  .footer-links a:hover { color: var(--accent); }
 
   .footer-copy {
     font-family: var(--font-mono);
@@ -662,14 +658,6 @@
     letter-spacing: 0.1em;
   }
 
-  /* --- Wolf SVG --- */
-  .wolf-svg {
-    width: 180px;
-    height: 180px;
-    margin: 0 auto 2rem;
-    opacity: 0;
-    animation: fade-up 1s ease 0.1s forwards;
-  }
 
   /* --- Responsive --- */
   @media (max-width: 768px) {
@@ -684,7 +672,7 @@
 <body>
 
 <nav>
-  <a class="nav-logo" href="#"><span>F</span>ENRIR<span>OS</span></a>
+  <a class="nav-logo" href="#">FENRIR <span>LINUX</span></a>
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
     <li><a href="#stack">Stack</a></li>
@@ -698,25 +686,8 @@
   <div class="rune-bg"></div>
   <div class="hero-glow"></div>
 
-  <!-- Wolf SVG -->
-  <svg class="wolf-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-    <g fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <!-- Wolf head silhouette simplified -->
-      <path d="M60 140 L45 100 L30 60 L55 75 L70 50 L85 80 L100 70 L115 80 L130 50 L145 75 L170 60 L155 100 L140 140 Z" stroke-width="1.5" fill="rgba(192,57,43,0.08)"/>
-      <path d="M70 50 L60 30 L45 45 L30 60" stroke-width="1"/>
-      <path d="M130 50 L140 30 L155 45 L170 60" stroke-width="1"/>
-      <!-- Eyes -->
-      <circle cx="82" cy="100" r="5" fill="rgba(192,57,43,0.5)" stroke="none"/>
-      <circle cx="118" cy="100" r="5" fill="rgba(192,57,43,0.5)" stroke="none"/>
-      <!-- Chains broken -->
-      <path d="M40 155 L55 145 M55 145 L60 155 M60 155 L75 145" stroke-width="1.5"/>
-      <path d="M160 155 L145 145 M145 145 L140 155 M140 155 L125 145" stroke-width="1.5"/>
-      <line x1="75" y1="145" x2="85" y2="155" stroke-width="1" stroke-dasharray="3 3"/>
-      <line x1="125" y1="145" x2="115" y2="155" stroke-width="1" stroke-dasharray="3 3"/>
-    </g>
-  </svg>
 
-  <p class="hero-eyebrow">Arch Linux · OpenRC · Gaming</p>
+  <p class="hero-eyebrow">Artix Linux · OpenRC · Gaming</p>
   <h1 class="hero-title">Fenrir Linux</h1>
   <p class="hero-tagline">Unchained</p>
   <p class="hero-desc">
@@ -795,8 +766,8 @@
     </div>
     <div class="feature-card">
       <span class="feature-icon">🛡️</span>
-      <div class="feature-name">Arch Foundation</div>
-      <p class="feature-desc">Rolling release, pacman, AUR access, CachyOS repos. All the power of Arch with a curated gaming-first experience on top.</p>
+      <div class="feature-name">Artix Foundation</div>
+      <p class="feature-desc">Rolling release Artix with pacman, Arch repos as a fallback and the CachyOS kernel. The Arch ecosystem, minus systemd, with a gaming-first setup on top.</p>
       <span class="feature-tag">rolling release</span>
     </div>
   </div>
@@ -810,8 +781,8 @@
     <div class="stack-grid">
       <div class="stack-item">
         <span class="stack-role">Base</span>
-        <span class="stack-name">Arch Linux</span>
-        <span class="stack-note">rolling release</span>
+        <span class="stack-name">Artix Linux</span>
+        <span class="stack-note">rolling, systemd-free</span>
       </div>
       <div class="stack-item">
         <span class="stack-role">Kernel</span>
@@ -905,7 +876,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo"><span>F</span>ENRIR<span>OS</span></div>
+  <div class="footer-logo">FENRIR <span>LINUX</span></div>
   <ul class="footer-links">
     <li><a href="https://github.com/FenrirLinux" target="_blank">GitHub</a></li>
     <li><a href="https://fenrirlinux.org">Website</a></li>

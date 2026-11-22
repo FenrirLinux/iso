@@ -64,7 +64,7 @@ archiso-profile/                 the live ISO (console only)
             │                            NVIDIA setup, PipeWire launcher
             ├── etc/init.d/scx           sched_ext service
             └── usr/lib/firefox/         Fenrir Browser policies and defaults
-assets/                          artwork and the Fenrir Browser theme source
+assets/                          Fenrir Browser theme source
 build.sh                         build script
 index.html                       fenrirlinux.org landing page
 ```
