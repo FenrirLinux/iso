@@ -1,0 +1,4 @@
+# Fenrir Linux live ISO: log in as root on tty1 automatically, like the Arch ISO.
+baud="38400"
+term_type="linux"
+agetty_options="--autologin root --noclear"

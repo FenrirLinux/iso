@@ -10,3 +10,9 @@ Thumbs.db
 
 # Cloudflare
 .wrangler/
+
+# Build output
+/work/
+/out/
+# Test VM disks (scripts/test-vm.sh)
+/vm/

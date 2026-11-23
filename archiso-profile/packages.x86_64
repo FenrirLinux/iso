@@ -1,117 +1,65 @@
 # ==============================================================================
-# FenrirOS - packages.x86_64
-# Artix-based system + CachyOS kernel
+# Fenrir Linux - live ISO packages (console only, like the Arch ISO)
+# What gets installed onto disk is in airootfs/usr/share/fenrir/packages/.
 # ==============================================================================
 
-# --- Base System (from Artix [system]) ---
+# --- Base / kernel ---
 base
-base-devel
 linux-cachyos
-linux-cachyos-headers
 linux-firmware
 linux-firmware-whence
+amd-ucode
+intel-ucode
 mkinitcpio
 mkinitcpio-archiso
-
-# --- OpenRC (from Artix [system]) ---
 openrc
-elogind
 elogind-openrc
-seatd
 dbus
 dbus-openrc
 
-# --- Bootloader ---
+# --- Boot the ISO ---
 grub
 efibootmgr
-os-prober
 syslinux
 mtools
+
+# --- Repos & keyrings ---
+fenrir-keyring
+fenrir-base
+artix-keyring
+artix-mirrorlist
+artix-archlinux-support
+cachyos-keyring
+cachyos-mirrorlist
+
+# --- Installer ---
+artools-base
+gptfdisk
+parted
+dosfstools
+e2fsprogs
+btrfs-progs
+xfsprogs
+ntfs-3g
+exfatprogs
 
 # --- Networking ---
 networkmanager
 networkmanager-openrc
-network-manager-applet
 wpa_supplicant
 dhcpcd
-
-# --- Audio ---
-pipewire
-pipewire-alsa
-pipewire-jack
-pipewire-pulse
-wireplumber
-
-# --- Display ---
-xorg-server
-xorg-xinit
-wayland
-
-# --- GPU drivers ---
-mesa
-vulkan-radeon
-vulkan-intel
-lib32-mesa
-lib32-vulkan-radeon
-lib32-vulkan-intel
-
-# --- Desktop Environment ---
-plasma-desktop
-kwin
-dolphin
-konsole
-sddm
-sddm-openrc
-
-# --- Gaming Stack ---
-steam
-lib32-glibc
-lib32-gcc-libs
-mangohud
-lib32-mangohud
-lutris
-wine-staging
-winetricks
-
-# --- Filesystem ---
-btrfs-progs
-dosfstools
-e2fsprogs
-ntfs-3g
-exfatprogs
-
-# --- System Utilities ---
-sudo
-polkit
-acpid
-acpid-openrc
-cronie
-cronie-openrc
 openssh
 openssh-openrc
-calamares
-squashfs-tools
-calamares
 
-# --- CLI Utilities ---
-bash
-zsh
-git
-curl
-wget
+# --- Tools ---
+pciutils
+usbutils
 nano
 vim
-htop
-fastfetch
+less
+curl
+wget
 rsync
-unzip
-7zip
-firefox
-zenity
-
-# --- Fonts ---
-ttf-dejavu
-ttf-liberation
-noto-fonts
-noto-fonts-emoji
-ttf-nerd-fonts-symbols
+git
+bash-completion
+terminus-font

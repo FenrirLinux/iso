@@ -1,0 +1,15 @@
+
+  Fenrir Linux live environment
+  ---------------------------------------------------------------
+  1. Get online
+       Ethernet connects by itself. For Wi-Fi run:   nmtui
+  2. (optional) Change the keyboard layout, e.g.:    loadkeys de
+  3. Install Fenrir Linux:                           fenrir-install
+
+  Test install in a VM (erases /dev/vda, asks only for a password):
+       fenrir-install -c /usr/share/fenrir/examples/vm-test.conf
+
+  Prefer doing it by hand, the Arch way?  All tools are here
+  (basestrap, fstabgen, artix-chroot). Guide:
+       https://github.com/FenrirLinux/iso/blob/main/docs/manual-install.md
+

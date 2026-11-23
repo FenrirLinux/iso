@@ -1,0 +1,73 @@
+name: Check
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -S warning \
+            build.sh \
+            archiso-profile/profiledef.sh \
+            archiso-profile/airootfs/usr/local/bin/* \
+            scripts/*.sh
+          # ash/openrc-run scripts: syntax only
+          for f in archiso-profile/airootfs/usr/lib/initcpio/hooks/*; do
+            sh -n "$f"
+          done
+
+      - name: Validate JSON
+        run: |
+          python3 - <<'PY'
+          import glob, json
+          for f in glob.glob("archiso-profile/**/*.json", recursive=True):
+              json.load(open(f))
+          print("ok")
+          PY
+
+      - name: Boot configs use the label template
+        run: |
+          ! grep -rnE 'archisolabel=FENRIR_[0-9]' archiso-profile/
+
+  build:
+    # Full ISO build. It takes a while, so it only runs when asked:
+    # - Actions > Check > Run workflow, or
+    # - a pull request with the "build-iso" label (rebuilt on every push).
+    # Download the ISO from the run's "Artifacts" section.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+       contains(github.event.pull_request.labels.*.name, 'build-iso'))
+    needs: lint
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install archiso
+        run: |
+          pacman-key --init
+          pacman-key --populate archlinux
+          pacman -Syu --noconfirm --needed archiso grub
+      - name: Build
+        run: ./build.sh
+      - name: Check fenrir-install package lists
+        # Needs the keyring and pacman.conf that build.sh prepares.
+        if: ${{ !cancelled() && hashFiles('work/profile/pacman.conf') != '' }}
+        run: ./scripts/check-packages.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fenrirlinux-iso
+          path: out/*.iso
+          compression-level: 0
+          retention-days: 7

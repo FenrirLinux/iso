@@ -1,5 +1,5 @@
 #!/usr/bin/ash
-# FenrirOS custom udev hook for mkinitcpio
+# Fenrir Linux udev hook for mkinitcpio (Artix eudev/udev, no systemd).
 
 run_earlyhook() {
     /usr/bin/udevd --daemon --resolve-names=never
@@ -11,12 +11,18 @@ run_hook() {
     udevadm trigger --action=add --type=devices
     udevadm settle --timeout=10
 
-    # Quick check for block devices - don't wait long
-    local i=0
-    while [ $i -lt 15 ]; do
-        if blkid 2>/dev/null | grep -q "FENRIR_202604"; then
-            break
-        fi
+    # Live ISO only: slow USB sticks can show up after udev settles, so wait
+    # up to 15s for the ISO label taken from the kernel command line.
+    # Installed systems don't pass archisolabel= and skip this entirely.
+    local arg label="" i=0
+    for arg in $(cat /proc/cmdline); do
+        case "$arg" in
+            archisolabel=*) label="${arg#archisolabel=}" ;;
+        esac
+    done
+    [ -n "$label" ] || return 0
+
+    while [ "$i" -lt 15 ] && [ ! -e "/dev/disk/by-label/${label}" ]; do
         sleep 1
         i=$((i + 1))
     done
