@@ -62,7 +62,7 @@ if [[ ${TRIAL_INSTALL:-0} == 1 && $status -eq 0 ]]; then
             || { echo "ERROR: fenrir-base did not add [fenrir] to pacman.conf" >&2; status=1; }
     else
         echo "ERROR: trial install failed:" >&2
-        grep -n -i -E 'error|conflict|exists in filesystem|invalid|corrupted|unknown trust|not found' \
+        grep -n -i -E -A8 'error|conflict|exists in|invalid|corrupted|unknown trust|not found' \
             /tmp/trial-install.log | head -40 >&2
         status=1
     fi
