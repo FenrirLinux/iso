@@ -46,4 +46,25 @@ for profile in base "base desktop"; do
     fi
     echo "$out" | awk '{print $2}' | sort | uniq -c | sed 's/^/    /'
 done
+# Optionally do a real install of everything into a scratch root, like
+# fenrir-install's basestrap does. Catches file conflicts, broken install
+# scripts and signature problems that resolving alone can't see.
+if [[ ${TRIAL_INSTALL:-0} == 1 && $status -eq 0 ]]; then
+    root=$(mktemp -d /tmp/fenrir-trial.XXXX)
+    pkgs=()
+    for list in base desktop; do
+        mapfile -t -O "${#pkgs[@]}" pkgs < <(read_list "$LISTS/$list.txt")
+    done
+    echo "==> Trial install of ${#pkgs[@]} packages into $root"
+    if pacstrap -C "$CONF" -G -M "$root" "${pkgs[@]}" > /tmp/trial-install.log 2>&1; then
+        echo "    trial install OK"
+        grep -q '^\[fenrir\]' "$root/etc/pacman.conf" \
+            || { echo "ERROR: fenrir-base did not add [fenrir] to pacman.conf" >&2; status=1; }
+    else
+        echo "ERROR: trial install failed:" >&2
+        grep -n -i -E 'error|conflict|exists in filesystem|invalid|corrupted|unknown trust|not found' \
+            /tmp/trial-install.log | head -40 >&2
+        status=1
+    fi
+fi
 exit "$status"
