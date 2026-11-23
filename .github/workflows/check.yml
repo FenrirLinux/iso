@@ -58,13 +58,13 @@ jobs:
         run: |
           pacman-key --init
           pacman-key --populate archlinux
-          pacman -Syu --noconfirm --needed archiso grub
+          pacman -Syu --noconfirm --needed archiso grub arch-install-scripts
       - name: Build
         run: ./build.sh
       - name: Check fenrir-install package lists
         # Needs the keyring and pacman.conf that build.sh prepares.
         if: ${{ !cancelled() && hashFiles('work/profile/pacman.conf') != '' }}
-        run: ./scripts/check-packages.sh
+        run: TRIAL_INSTALL=1 ./scripts/check-packages.sh
       - uses: actions/upload-artifact@v4
         with:
           name: fenrirlinux-iso
